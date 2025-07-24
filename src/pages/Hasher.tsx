@@ -14,6 +14,7 @@ export default function Hasher() {
   const [hashInput, setHashInput] = useState('');
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
+  const [hashHistory, setHashHistory] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
 
   // Simple MD5 implementation for demo purposes
@@ -45,10 +46,17 @@ export default function Hasher() {
       await new Promise(resolve => setTimeout(resolve, 800));
       
       const hash = generateMD5(inputText);
+      
+      // Store in history for bidirectional lookup
+      const newHistory = { ...hashHistory, [hash]: inputText };
+      setHashHistory(newHistory);
+      localStorage.setItem('hashHistory', JSON.stringify(newHistory));
+      
       const output = `Input: "${inputText}"
 MD5 Hash: ${hash}
 Length: ${inputText.length} characters
 Hash Length: 32 characters
+Stored in History: Yes
 Generated: ${new Date().toLocaleString()}`;
       
       setResult(output);
@@ -71,7 +79,12 @@ Generated: ${new Date().toLocaleString()}`;
       // Simulate processing time
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Demo rainbow table lookup
+      // Load stored history
+      const storedHistory = localStorage.getItem('hashHistory');
+      const currentHistory = storedHistory ? JSON.parse(storedHistory) : {};
+      const mergedHistory = { ...hashHistory, ...currentHistory };
+      
+      // Demo rainbow table lookup + user generated hashes
       const commonHashes: { [key: string]: string } = {
         '5d41402abc4b2a76b9719d911017c592': 'hello',
         '098f6bcd4621d373cade4e832627b4f6': 'test',
@@ -81,25 +94,35 @@ Generated: ${new Date().toLocaleString()}`;
         'd41d8cd98f00b204e9800998ecf8427e': '(empty string)',
         'c4ca4238a0b923820dcc509a6f75849b': '1',
         'c81e728d9d4c2f636f067f89cc14862c': '2',
-        'eccbc87e4b5ce2fe28308fd9f2a7baf3': '3'
+        'eccbc87e4b5ce2fe28308fd9f2a7baf3': '3',
+        ...mergedHistory
       };
       
       const cleanHash = hashInput.toLowerCase().trim();
       let decoded = commonHashes[cleanHash];
+      let source = 'rainbow table';
+      
+      if (mergedHistory[cleanHash]) {
+        decoded = mergedHistory[cleanHash];
+        source = 'user history';
+      }
       
       if (!decoded) {
         // Check if it's a valid MD5 format
         if (!/^[a-f0-9]{32}$/i.test(cleanHash)) {
           decoded = "Invalid MD5 format. MD5 hashes are 32 hexadecimal characters.";
+          source = 'validation error';
         } else {
-          decoded = "Hash not found in rainbow table. This could be a strong password or custom text.";
+          decoded = "Hash not found in rainbow table or history. This could be a strong password or custom text.";
+          source = 'not found';
         }
       }
       
       const output = `Hash: ${hashInput}
 Decoded: ${decoded}
 Algorithm: MD5
-Analysis: ${decoded.includes('not found') ? 'Strong hash - not in common dictionaries' : 'Weak - found in rainbow table'}
+Source: ${source}
+Analysis: ${decoded.includes('not found') ? 'Strong hash - not in common dictionaries' : source === 'user history' ? 'Found in your generation history' : 'Weak - found in rainbow table'}
 Lookup Time: ${new Date().toLocaleString()}`;
       
       setResult(output);
@@ -210,6 +233,7 @@ Lookup Time: ${new Date().toLocaleString()}`;
                       <p>• 5d41402abc4b2a76b9719d911017c592 (hello)</p>
                       <p>• e10adc3949ba59abbe56e057f20f883e (123456)</p>
                       <p>• 25d55ad283aa400af464c76d713c07ad (hello world)</p>
+                      <p><strong>Your generated hashes:</strong> {Object.keys(hashHistory).length} stored</p>
                     </div>
                     <Button 
                       onClick={decodeHash} 
@@ -311,39 +335,99 @@ Lookup Time: ${new Date().toLocaleString()}`;
           </div>
         </div>
 
-        {/* Educational Information */}
-        <Card className="mt-8 bg-accent/10 border-accent/20">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-accent mb-2">Hash Functions & Security</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-              <div>
-                <h4 className="font-semibold mb-2">What are Hash Functions?</h4>
-                <p className="text-muted-foreground mb-3">
-                  Hash functions convert input data into fixed-size strings. They're used for data integrity, 
-                  password storage, and digital signatures.
-                </p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>MD5: 128-bit hash (32 hex characters)</li>
-                  <li>SHA-1: 160-bit hash (40 hex characters)</li>
-                  <li>SHA-256: 256-bit hash (64 hex characters)</li>
-                  <li>One-way function: difficult to reverse</li>
-                </ul>
+        {/* Advanced Features */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="bg-gradient-card border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-primary" />
+                Advanced Hash Operations
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Button 
+                  onClick={() => {
+                    const salt = Math.random().toString(36).substring(2, 15);
+                    const saltedText = inputText + salt;
+                    const hash = generateMD5(saltedText);
+                    setResult(`Salted Hash Generated:
+Input: "${inputText}"
+Salt: ${salt}
+Salted Input: "${saltedText}"
+MD5 Hash: ${hash}
+Note: Salt makes hash unique each time`);
+                  }}
+                  variant="outline"
+                  disabled={!inputText}
+                  className="gap-2"
+                >
+                  <Key className="w-4 h-4" />
+                  Salt Hash
+                </Button>
+                <Button 
+                  onClick={() => {
+                    const hash1 = generateMD5(inputText);
+                    const hash2 = generateMD5(hash1);
+                    setResult(`Double Hash Generated:
+Input: "${inputText}"
+First Hash: ${hash1}
+Second Hash: ${hash2}
+Note: Double hashing for extra security`);
+                  }}
+                  variant="outline"
+                  disabled={!inputText}
+                  className="gap-2"
+                >
+                  <Hash className="w-4 h-4" />
+                  Double Hash
+                </Button>
               </div>
-              <div>
-                <h4 className="font-semibold mb-2">Security Considerations</h4>
-                <p className="text-muted-foreground mb-3">
-                  Modern cryptographic practices discourage MD5 for security-critical applications due to vulnerabilities.
-                </p>
-                <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li><strong>Collision attacks:</strong> MD5 is vulnerable</li>
-                  <li><strong>Rainbow tables:</strong> Precomputed hash lookups</li>
-                  <li><strong>Salt:</strong> Random data added before hashing</li>
-                  <li><strong>Best practice:</strong> Use SHA-256+ for security</li>
-                </ul>
+              <Button 
+                onClick={() => {
+                  localStorage.removeItem('hashHistory');
+                  setHashHistory({});
+                  toast({ title: "History Cleared", description: "All stored hashes removed" });
+                }}
+                variant="destructive"
+                className="w-full gap-2"
+              >
+                <AlertTriangle className="w-4 h-4" />
+                Clear Hash History
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-accent/10 border-accent/20">
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-accent mb-2">Hash Functions & Security</h3>
+              <div className="space-y-4 text-sm">
+                <div>
+                  <h4 className="font-semibold mb-2">What are Hash Functions?</h4>
+                  <p className="text-muted-foreground mb-3">
+                    Hash functions convert input data into fixed-size strings. They're used for data integrity, 
+                    password storage, and digital signatures.
+                  </p>
+                  <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                    <li>MD5: 128-bit hash (32 hex characters)</li>
+                    <li>SHA-1: 160-bit hash (40 hex characters)</li>
+                    <li>SHA-256: 256-bit hash (64 hex characters)</li>
+                    <li>One-way function: difficult to reverse</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Security Considerations</h4>
+                  <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                    <li><strong>Collision attacks:</strong> MD5 is vulnerable</li>
+                    <li><strong>Rainbow tables:</strong> Precomputed hash lookups</li>
+                    <li><strong>Salt:</strong> Random data added before hashing</li>
+                    <li><strong>Best practice:</strong> Use SHA-256+ for security</li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
