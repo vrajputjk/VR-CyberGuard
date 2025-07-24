@@ -13,6 +13,7 @@ import BreachChecker from "./pages/BreachChecker";
 import EmailSecurity from "./pages/EmailSecurity";
 import LinkObfuscator from "./pages/LinkObfuscator";
 import Steganography from "./pages/Steganography";
+import Hasher from "./pages/Hasher";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/email-security" element={<EmailSecurity />} />
           <Route path="/link-obfuscator" element={<LinkObfuscator />} />
           <Route path="/steganography" element={<Steganography />} />
+          <Route path="/hasher" element={<Hasher />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

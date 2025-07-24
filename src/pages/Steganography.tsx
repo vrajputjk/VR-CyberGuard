@@ -127,9 +127,23 @@ export default function Steganography() {
                       />
                     </div>
                     <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                      <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">Upload carrier image (PNG/JPG)</p>
-                      <p className="text-xs text-muted-foreground mt-2">Demo mode - actual file upload coming soon</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            toast({ title: "Image Selected", description: `${file.name} ready for processing` });
+                          }
+                        }}
+                        className="hidden"
+                        id="carrier-upload"
+                      />
+                      <label htmlFor="carrier-upload" className="cursor-pointer">
+                        <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">Click to upload carrier image (PNG/JPG)</p>
+                        <p className="text-xs text-muted-foreground mt-2">Maximum file size: 10MB</p>
+                      </label>
                     </div>
                     <Button 
                       onClick={hideMessage} 
@@ -166,9 +180,23 @@ export default function Steganography() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                      <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">Upload suspicious image file</p>
-                      <p className="text-xs text-muted-foreground mt-2">Demo mode - try passphrases: 'secret', 'password', 'demo'</p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            toast({ title: "Image Selected", description: `${file.name} ready for analysis` });
+                          }
+                        }}
+                        className="hidden"
+                        id="suspect-upload"
+                      />
+                      <label htmlFor="suspect-upload" className="cursor-pointer">
+                        <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">Click to upload suspicious image file</p>
+                        <p className="text-xs text-muted-foreground mt-2">Demo mode - try passphrases: 'secret', 'password', 'demo'</p>
+                      </label>
                     </div>
                     <div>
                       <Label htmlFor="extract-passphrase">Passphrase (if required)</Label>

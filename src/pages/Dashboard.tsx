@@ -1,4 +1,4 @@
-import { Shield, Scan, Lock, Eye, Globe, Mail, Network, Image, Key, Search, Fingerprint, AlertTriangle } from 'lucide-react';
+import { Shield, Scan, Lock, Eye, Globe, Mail, Network, Image, Key, Search, Fingerprint, AlertTriangle, Hash } from 'lucide-react';
 import { IPDisplay } from '@/components/IPDisplay';
 import { ToolCard } from '@/components/ToolCard';
 
@@ -75,6 +75,15 @@ const tools = [
     icon: Eye,
     href: '/link-obfuscator',
     riskLevel: 'high' as const
+  },
+  {
+    title: "Hasher - Integrity Checker",
+    description: "Generate MD5 hashes for text verification or decode hashes using rainbow table lookups.",
+    category: 'utilities' as const,
+    icon: Hash,
+    href: '/hasher',
+    riskLevel: 'low' as const,
+    isNew: true
   }
 ];
 
