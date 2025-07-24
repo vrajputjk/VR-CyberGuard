@@ -1,4 +1,4 @@
-import { Shield, Scan, Lock, Eye, Globe, Mail, Network, Image, Key, Search, Fingerprint, AlertTriangle, Hash } from 'lucide-react';
+import { Shield, Scan, Lock, Eye, Globe, Mail, Network, Image, Key, Search, Fingerprint, AlertTriangle, Hash, Download } from 'lucide-react';
 import { IPDisplay } from '@/components/IPDisplay';
 import { ToolCard } from '@/components/ToolCard';
 
@@ -83,6 +83,15 @@ const tools = [
     icon: Hash,
     href: '/hasher',
     riskLevel: 'low' as const,
+    isNew: true
+  },
+  {
+    title: "Website Cloner",
+    description: "Clone websites for offline analysis using HTTrack-like functionality with advanced options.",
+    category: 'utilities' as const,
+    icon: Download,
+    href: '/website-cloner',
+    riskLevel: 'medium' as const,
     isNew: true
   }
 ];

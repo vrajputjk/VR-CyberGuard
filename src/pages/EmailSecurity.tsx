@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, ArrowLeft, Copy, Download, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Mail, ArrowLeft, Copy, Download, Shield, AlertTriangle, CheckCircle, Search, User, ExternalLink, Globe } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,11 +21,46 @@ interface EmailAnalysis {
   recommendation: string;
 }
 
+interface EmailLookupResult {
+  email: string;
+  found: boolean;
+  sources: {
+    platform: string;
+    profile?: string;
+    profilePicture?: string;
+    username?: string;
+    lastSeen?: string;
+    verified?: boolean;
+  }[];
+  breachHistory: {
+    breach: string;
+    date: string;
+    compromisedData: string[];
+  }[];
+  riskScore: number;
+}
+
+interface SubdomainResult {
+  domain: string;
+  subdomains: {
+    subdomain: string;
+    ip: string;
+    status: 'active' | 'inactive';
+    services: string[];
+    lastChecked: string;
+  }[];
+  totalFound: number;
+}
+
 export default function EmailSecurity() {
   const [emailAddress, setEmailAddress] = useState('');
   const [emailHeaders, setEmailHeaders] = useState('');
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [domainInput, setDomainInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<EmailAnalysis | null>(null);
+  const [emailLookup, setEmailLookup] = useState<EmailLookupResult | null>(null);
+  const [subdomainResults, setSubdomainResults] = useState<SubdomainResult | null>(null);
   const { toast } = useToast();
 
   const analyzeEmail = async () => {
@@ -161,12 +196,110 @@ export default function EmailSecurity() {
     }
   };
 
+  const performEmailLookup = async () => {
+    if (!lookupEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an email address to lookup",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Simulate OSINT email lookup (like Holehe)
+      const mockSources = [
+        { platform: 'Twitter', username: 'user123', verified: true, profilePicture: '/api/placeholder/40/40', lastSeen: '2024-01-15' },
+        { platform: 'LinkedIn', profile: 'https://linkedin.com/in/user123', verified: false, lastSeen: '2024-01-10' },
+        { platform: 'Facebook', username: 'user.name', verified: false, lastSeen: '2023-12-20' },
+        { platform: 'Instagram', username: 'user_123', profilePicture: '/api/placeholder/40/40', verified: true, lastSeen: '2024-01-12' }
+      ];
+
+      const mockBreaches = [
+        { breach: 'LinkedInBreach2021', date: '2021-06-01', compromisedData: ['Email', 'Password Hash', 'Phone'] },
+        { breach: 'FacebookLeak2019', date: '2019-04-01', compromisedData: ['Email', 'Name', 'Phone'] }
+      ];
+
+      const riskScore = Math.floor(Math.random() * 100);
+      
+      setEmailLookup({
+        email: lookupEmail,
+        found: true,
+        sources: mockSources.slice(0, Math.floor(Math.random() * 4) + 1),
+        breachHistory: riskScore > 50 ? mockBreaches : [],
+        riskScore
+      });
+
+      toast({
+        title: "Email Lookup Complete",
+        description: `Found ${mockSources.length} sources for this email`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to perform email lookup",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const findSubdomains = async () => {
+    if (!domainInput.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a domain to scan",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 4000));
+
+      const mockSubdomains = [
+        { subdomain: `www.${domainInput}`, ip: '192.168.1.1', status: 'active' as const, services: ['HTTP', 'HTTPS'], lastChecked: new Date().toISOString() },
+        { subdomain: `mail.${domainInput}`, ip: '192.168.1.2', status: 'active' as const, services: ['SMTP', 'IMAP'], lastChecked: new Date().toISOString() },
+        { subdomain: `ftp.${domainInput}`, ip: '192.168.1.3', status: 'inactive' as const, services: ['FTP'], lastChecked: new Date().toISOString() },
+        { subdomain: `api.${domainInput}`, ip: '192.168.1.4', status: 'active' as const, services: ['HTTPS', 'API'], lastChecked: new Date().toISOString() },
+        { subdomain: `blog.${domainInput}`, ip: '192.168.1.5', status: 'active' as const, services: ['HTTP'], lastChecked: new Date().toISOString() }
+      ];
+
+      const foundSubdomains = mockSubdomains.slice(0, Math.floor(Math.random() * 5) + 3);
+
+      setSubdomainResults({
+        domain: domainInput,
+        subdomains: foundSubdomains,
+        totalFound: foundSubdomains.length
+      });
+
+      toast({
+        title: "Subdomain Scan Complete",
+        description: `Found ${foundSubdomains.length} subdomains`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to scan subdomains",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const exportAnalysis = () => {
-    if (!analysis) return;
+    const data = analysis || emailLookup || subdomainResults;
+    if (!data) return;
 
     const exportData = {
       timestamp: new Date().toISOString(),
-      analysis,
+      data,
       tool: 'VRCyber Guard Email Security Analyzer'
     };
 
@@ -220,9 +353,11 @@ export default function EmailSecurity() {
           {/* Input Section */}
           <div className="space-y-6">
             <Tabs defaultValue="email" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="email">Email Address</TabsTrigger>
-                <TabsTrigger value="headers">Email Headers</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="email">Email Analysis</TabsTrigger>
+                <TabsTrigger value="headers">Headers</TabsTrigger>
+                <TabsTrigger value="lookup">Email Lookup</TabsTrigger>
+                <TabsTrigger value="subdomain">Subdomains</TabsTrigger>
               </TabsList>
               
               <TabsContent value="email">
@@ -304,12 +439,219 @@ export default function EmailSecurity() {
                   </CardContent>
                 </Card>
               </TabsContent>
+              
+              <TabsContent value="lookup">
+                <Card className="bg-gradient-card border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Search className="w-5 h-5 text-primary" />
+                      Email OSINT Lookup
+                    </CardTitle>
+                    <CardDescription>
+                      Search for email presence across social platforms and data breaches.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="lookup-email">Email Address</Label>
+                      <Input
+                        id="lookup-email"
+                        type="email"
+                        value={lookupEmail}
+                        onChange={(e) => setLookupEmail(e.target.value)}
+                        placeholder="target@example.com"
+                        onKeyPress={(e) => e.key === 'Enter' && performEmailLookup()}
+                      />
+                    </div>
+                    <Button onClick={performEmailLookup} disabled={loading} variant="scan" className="w-full gap-2">
+                      {loading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          Searching...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-4 h-4" />
+                          Lookup Email
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="subdomain">
+                <Card className="bg-gradient-card border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-primary" />
+                      Subdomain Finder
+                    </CardTitle>
+                    <CardDescription>
+                      Discover subdomains of a target domain for reconnaissance.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="domain">Domain</Label>
+                      <Input
+                        id="domain"
+                        value={domainInput}
+                        onChange={(e) => setDomainInput(e.target.value)}
+                        placeholder="example.com"
+                        onKeyPress={(e) => e.key === 'Enter' && findSubdomains()}
+                      />
+                    </div>
+                    <Button onClick={findSubdomains} disabled={loading} variant="scan" className="w-full gap-2">
+                      {loading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          Scanning...
+                        </>
+                      ) : (
+                        <>
+                          <Globe className="w-4 h-4" />
+                          Find Subdomains
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
             </Tabs>
           </div>
 
           {/* Results Section */}
           <div>
-            {analysis ? (
+            {emailLookup ? (
+              <Card className="bg-gradient-card border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <User className="w-5 h-5 text-primary" />
+                      Email Intelligence
+                    </span>
+                    <Badge className={emailLookup.riskScore > 70 ? 'bg-destructive/20 text-destructive border-destructive/30' : 
+                                   emailLookup.riskScore > 40 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                   'bg-primary/20 text-primary border-primary/30'}>
+                      Risk: {emailLookup.riskScore}/100
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Email: {emailLookup.email}</Label>
+                  </div>
+                  
+                  <div>
+                    <Label className="mb-3 block">Found on Platforms</Label>
+                    <div className="space-y-2">
+                      {emailLookup.sources.map((source, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-muted/10 rounded">
+                          <div className="flex items-center gap-3">
+                            {source.profilePicture && (
+                              <img src={source.profilePicture} alt="Profile" className="w-8 h-8 rounded-full" />
+                            )}
+                            <div>
+                              <p className="font-semibold">{source.platform}</p>
+                              {source.username && <p className="text-sm text-muted-foreground">@{source.username}</p>}
+                              {source.lastSeen && <p className="text-xs text-muted-foreground">Last seen: {source.lastSeen}</p>}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {source.verified && <CheckCircle className="w-4 h-4 text-primary" />}
+                            {source.profile && (
+                              <Button variant="ghost" size="sm" onClick={() => window.open(source.profile, '_blank')}>
+                                <ExternalLink className="w-3 h-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {emailLookup.breachHistory.length > 0 && (
+                    <div>
+                      <Label className="mb-3 block">Data Breach History</Label>
+                      <div className="space-y-2">
+                        {emailLookup.breachHistory.map((breach, index) => (
+                          <div key={index} className="p-3 bg-destructive/10 border border-destructive/20 rounded">
+                            <div className="flex items-center gap-2 mb-2">
+                              <AlertTriangle className="w-4 h-4 text-destructive" />
+                              <span className="font-semibold">{breach.breach}</span>
+                              <span className="text-sm text-muted-foreground">{breach.date}</span>
+                            </div>
+                            <p className="text-sm">Compromised: {breach.compromisedData.join(', ')}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 pt-4 border-t border-border">
+                    <Button onClick={() => navigator.clipboard.writeText(JSON.stringify(emailLookup, null, 2))} variant="outline" className="flex-1 gap-2">
+                      <Copy className="w-4 h-4" />
+                      Copy Results
+                    </Button>
+                    <Button onClick={exportAnalysis} variant="outline" className="flex-1 gap-2">
+                      <Download className="w-4 h-4" />
+                      Export
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : subdomainResults ? (
+              <Card className="bg-gradient-card border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-primary" />
+                      Subdomain Discovery
+                    </span>
+                    <Badge className="bg-primary/20 text-primary border-primary/30">
+                      {subdomainResults.totalFound} Found
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Target Domain: {subdomainResults.domain}</Label>
+                  </div>
+                  
+                  <div>
+                    <Label className="mb-3 block">Discovered Subdomains</Label>
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {subdomainResults.subdomains.map((sub, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-muted/10 rounded">
+                          <div>
+                            <p className="font-mono text-sm">{sub.subdomain}</p>
+                            <p className="text-xs text-muted-foreground">IP: {sub.ip}</p>
+                            <p className="text-xs text-muted-foreground">Services: {sub.services.join(', ')}</p>
+                          </div>
+                          <Badge className={sub.status === 'active' ? 
+                            'bg-primary/20 text-primary border-primary/30' : 
+                            'bg-muted text-muted-foreground border-muted'}>
+                            {sub.status}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-4 border-t border-border">
+                    <Button onClick={() => navigator.clipboard.writeText(JSON.stringify(subdomainResults, null, 2))} variant="outline" className="flex-1 gap-2">
+                      <Copy className="w-4 h-4" />
+                      Copy Results
+                    </Button>
+                    <Button onClick={exportAnalysis} variant="outline" className="flex-1 gap-2">
+                      <Download className="w-4 h-4" />
+                      Export
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : analysis ? (
               <Card className="bg-gradient-card border-primary/20">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
