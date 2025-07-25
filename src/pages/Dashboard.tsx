@@ -85,15 +85,6 @@ const tools = [
     riskLevel: 'low' as const,
     isNew: true
   },
-  {
-    title: "Website Cloner",
-    description: "Clone websites for offline analysis using HTTrack-like functionality with advanced options.",
-    category: 'utilities' as const,
-    icon: Download,
-    href: '/website-cloner',
-    riskLevel: 'medium' as const,
-    isNew: true
-  }
 ];
 
 export default function Dashboard() {
