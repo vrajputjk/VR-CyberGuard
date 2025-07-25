@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 interface ToolCardProps {
   title: string;
   description: string;
-  category: 'scanning' | 'encryption' | 'awareness' | 'utilities';
+  category: 'scanning' | 'encryption' | 'awareness' | 'utilities' | 'recon';
   icon: LucideIcon;
   href: string;
   isNew?: boolean;
@@ -18,7 +18,8 @@ const categoryColors = {
   scanning: 'bg-accent/20 text-accent border-accent/30',
   encryption: 'bg-primary/20 text-primary border-primary/30', 
   awareness: 'bg-destructive/20 text-destructive border-destructive/30',
-  utilities: 'bg-secondary text-secondary-foreground border-secondary'
+  utilities: 'bg-secondary text-secondary-foreground border-secondary',
+  recon: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
 };
 
 const riskColors = {

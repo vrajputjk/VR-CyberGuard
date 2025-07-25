@@ -14,6 +14,7 @@ import EmailSecurity from "./pages/EmailSecurity";
 import LinkObfuscator from "./pages/LinkObfuscator";
 import Steganography from "./pages/Steganography";
 import Hasher from "./pages/Hasher";
+import Dirb from "./pages/Dirb";
 
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/link-obfuscator" element={<LinkObfuscator />} />
           <Route path="/steganography" element={<Steganography />} />
           <Route path="/hasher" element={<Hasher />} />
+          <Route path="/dirb" element={<Dirb />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

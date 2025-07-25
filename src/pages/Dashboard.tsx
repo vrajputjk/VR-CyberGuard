@@ -1,4 +1,4 @@
-import { Shield, Scan, Lock, Eye, Globe, Mail, Network, Image, Key, Search, Fingerprint, AlertTriangle, Hash, Download } from 'lucide-react';
+import { Shield, Scan, Lock, Eye, Globe, Mail, Network, Image, Key, Search, Fingerprint, AlertTriangle, Hash, Download, FolderOpen } from 'lucide-react';
 import { IPDisplay } from '@/components/IPDisplay';
 import { ToolCard } from '@/components/ToolCard';
 
@@ -85,6 +85,15 @@ const tools = [
     riskLevel: 'low' as const,
     isNew: true
   },
+  {
+    title: "Dirb",
+    description: "Discover hidden directories and files on web servers using dictionary-based attacks.",
+    category: 'recon' as const,
+    icon: FolderOpen,
+    href: '/dirb',
+    riskLevel: 'medium' as const,
+    isNew: true
+  }
 ];
 
 export default function Dashboard() {

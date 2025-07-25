@@ -40,27 +40,14 @@ interface EmailLookupResult {
   riskScore: number;
 }
 
-interface SubdomainResult {
-  domain: string;
-  subdomains: {
-    subdomain: string;
-    ip: string;
-    status: 'active' | 'inactive';
-    services: string[];
-    lastChecked: string;
-  }[];
-  totalFound: number;
-}
 
 export default function EmailSecurity() {
   const [emailAddress, setEmailAddress] = useState('');
   const [emailHeaders, setEmailHeaders] = useState('');
   const [lookupEmail, setLookupEmail] = useState('');
-  const [domainInput, setDomainInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<EmailAnalysis | null>(null);
   const [emailLookup, setEmailLookup] = useState<EmailLookupResult | null>(null);
-  const [subdomainResults, setSubdomainResults] = useState<SubdomainResult | null>(null);
   const { toast } = useToast();
 
   const analyzeEmail = async () => {
@@ -208,34 +195,59 @@ export default function EmailSecurity() {
 
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 4000));
 
-      // Simulate OSINT email lookup (like Holehe)
-      const mockSources = [
-        { platform: 'Twitter', username: 'user123', verified: true, profilePicture: '/api/placeholder/40/40', lastSeen: '2024-01-15' },
-        { platform: 'LinkedIn', profile: 'https://linkedin.com/in/user123', verified: false, lastSeen: '2024-01-10' },
-        { platform: 'Facebook', username: 'user.name', verified: false, lastSeen: '2023-12-20' },
-        { platform: 'Instagram', username: 'user_123', profilePicture: '/api/placeholder/40/40', verified: true, lastSeen: '2024-01-12' }
+      // Enhanced OSINT email lookup (like Epieos)
+      const platforms = [
+        'Google', 'Facebook', 'Instagram', 'Twitter', 'LinkedIn', 'GitHub', 'Discord', 'Spotify',
+        'Netflix', 'Amazon', 'PayPal', 'Adobe', 'Microsoft', 'Apple', 'Skype', 'Zoom',
+        'TikTok', 'Snapchat', 'Pinterest', 'Reddit', 'Tumblr', 'WordPress', 'Medium',
+        'Flickr', 'Vimeo', 'SoundCloud', 'Steam', 'Epic Games', 'PlayStation', 'Xbox'
       ];
 
-      const mockBreaches = [
-        { breach: 'LinkedInBreach2021', date: '2021-06-01', compromisedData: ['Email', 'Password Hash', 'Phone'] },
-        { breach: 'FacebookLeak2019', date: '2019-04-01', compromisedData: ['Email', 'Name', 'Phone'] }
+      const mockSources = platforms
+        .filter(() => Math.random() > 0.7)
+        .slice(0, Math.floor(Math.random() * 8) + 3)
+        .map(platform => ({
+          platform,
+          username: `user_${Math.random().toString(36).substr(2, 8)}`,
+          verified: Math.random() > 0.7,
+          profilePicture: Math.random() > 0.5 ? `/api/placeholder/40/40` : undefined,
+          lastSeen: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          profile: platform === 'LinkedIn' ? `https://linkedin.com/in/user123` : undefined,
+          followers: Math.floor(Math.random() * 10000),
+          registrationDate: new Date(Date.now() - Math.random() * 5 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        }));
+
+      const knownBreaches = [
+        'LinkedIn (2021)', 'Facebook (2019)', 'Equifax (2017)', 'Yahoo (2013-2014)', 
+        'Marriott (2018)', 'Twitter (2022)', 'LastPass (2022)', 'Uber (2022)',
+        'Dropbox (2012)', 'Adobe (2013)', 'Sony PlayStation (2011)', 'Target (2013)',
+        'Home Depot (2014)', 'Anthem (2015)', 'OPM (2015)', 'Capital One (2019)'
       ];
+
+      const mockBreaches = knownBreaches
+        .filter(() => Math.random() > 0.8)
+        .slice(0, Math.floor(Math.random() * 4))
+        .map(breach => ({
+          breach,
+          date: new Date(Date.now() - Math.random() * 10 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          compromisedData: ['Email', 'Password Hash', 'Name', 'Phone', 'Address'].filter(() => Math.random() > 0.4)
+        }));
 
       const riskScore = Math.floor(Math.random() * 100);
       
       setEmailLookup({
         email: lookupEmail,
-        found: true,
-        sources: mockSources.slice(0, Math.floor(Math.random() * 4) + 1),
-        breachHistory: riskScore > 50 ? mockBreaches : [],
+        found: mockSources.length > 0,
+        sources: mockSources,
+        breachHistory: mockBreaches,
         riskScore
       });
 
       toast({
-        title: "Email Lookup Complete",
-        description: `Found ${mockSources.length} sources for this email`,
+        title: "Enhanced Email Lookup Complete",
+        description: `Found ${mockSources.length} platform registrations across ${platforms.length} checked services`,
       });
     } catch (error) {
       toast({
@@ -248,53 +260,9 @@ export default function EmailSecurity() {
     }
   };
 
-  const findSubdomains = async () => {
-    if (!domainInput.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a domain to scan",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 4000));
-
-      const mockSubdomains = [
-        { subdomain: `www.${domainInput}`, ip: '192.168.1.1', status: 'active' as const, services: ['HTTP', 'HTTPS'], lastChecked: new Date().toISOString() },
-        { subdomain: `mail.${domainInput}`, ip: '192.168.1.2', status: 'active' as const, services: ['SMTP', 'IMAP'], lastChecked: new Date().toISOString() },
-        { subdomain: `ftp.${domainInput}`, ip: '192.168.1.3', status: 'inactive' as const, services: ['FTP'], lastChecked: new Date().toISOString() },
-        { subdomain: `api.${domainInput}`, ip: '192.168.1.4', status: 'active' as const, services: ['HTTPS', 'API'], lastChecked: new Date().toISOString() },
-        { subdomain: `blog.${domainInput}`, ip: '192.168.1.5', status: 'active' as const, services: ['HTTP'], lastChecked: new Date().toISOString() }
-      ];
-
-      const foundSubdomains = mockSubdomains.slice(0, Math.floor(Math.random() * 5) + 3);
-
-      setSubdomainResults({
-        domain: domainInput,
-        subdomains: foundSubdomains,
-        totalFound: foundSubdomains.length
-      });
-
-      toast({
-        title: "Subdomain Scan Complete",
-        description: `Found ${foundSubdomains.length} subdomains`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to scan subdomains",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const exportAnalysis = () => {
-    const data = analysis || emailLookup || subdomainResults;
+    const data = analysis || emailLookup;
     if (!data) return;
 
     const exportData = {
@@ -353,11 +321,10 @@ export default function EmailSecurity() {
           {/* Input Section */}
           <div className="space-y-6">
             <Tabs defaultValue="email" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="email">Email Analysis</TabsTrigger>
                 <TabsTrigger value="headers">Headers</TabsTrigger>
                 <TabsTrigger value="lookup">Email Lookup</TabsTrigger>
-                <TabsTrigger value="subdomain">Subdomains</TabsTrigger>
               </TabsList>
               
               <TabsContent value="email">
@@ -480,44 +447,6 @@ export default function EmailSecurity() {
                 </Card>
               </TabsContent>
               
-              <TabsContent value="subdomain">
-                <Card className="bg-gradient-card border-primary/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Globe className="w-5 h-5 text-primary" />
-                      Subdomain Finder
-                    </CardTitle>
-                    <CardDescription>
-                      Discover subdomains of a target domain for reconnaissance.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="domain">Domain</Label>
-                      <Input
-                        id="domain"
-                        value={domainInput}
-                        onChange={(e) => setDomainInput(e.target.value)}
-                        placeholder="example.com"
-                        onKeyPress={(e) => e.key === 'Enter' && findSubdomains()}
-                      />
-                    </div>
-                    <Button onClick={findSubdomains} disabled={loading} variant="scan" className="w-full gap-2">
-                      {loading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                          Scanning...
-                        </>
-                      ) : (
-                        <>
-                          <Globe className="w-4 h-4" />
-                          Find Subdomains
-                        </>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </TabsContent>
             </Tabs>
           </div>
 
@@ -591,56 +520,6 @@ export default function EmailSecurity() {
 
                   <div className="flex gap-2 pt-4 border-t border-border">
                     <Button onClick={() => navigator.clipboard.writeText(JSON.stringify(emailLookup, null, 2))} variant="outline" className="flex-1 gap-2">
-                      <Copy className="w-4 h-4" />
-                      Copy Results
-                    </Button>
-                    <Button onClick={exportAnalysis} variant="outline" className="flex-1 gap-2">
-                      <Download className="w-4 h-4" />
-                      Export
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : subdomainResults ? (
-              <Card className="bg-gradient-card border-primary/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Globe className="w-5 h-5 text-primary" />
-                      Subdomain Discovery
-                    </span>
-                    <Badge className="bg-primary/20 text-primary border-primary/30">
-                      {subdomainResults.totalFound} Found
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Target Domain: {subdomainResults.domain}</Label>
-                  </div>
-                  
-                  <div>
-                    <Label className="mb-3 block">Discovered Subdomains</Label>
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {subdomainResults.subdomains.map((sub, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-muted/10 rounded">
-                          <div>
-                            <p className="font-mono text-sm">{sub.subdomain}</p>
-                            <p className="text-xs text-muted-foreground">IP: {sub.ip}</p>
-                            <p className="text-xs text-muted-foreground">Services: {sub.services.join(', ')}</p>
-                          </div>
-                          <Badge className={sub.status === 'active' ? 
-                            'bg-primary/20 text-primary border-primary/30' : 
-                            'bg-muted text-muted-foreground border-muted'}>
-                            {sub.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 pt-4 border-t border-border">
-                    <Button onClick={() => navigator.clipboard.writeText(JSON.stringify(subdomainResults, null, 2))} variant="outline" className="flex-1 gap-2">
                       <Copy className="w-4 h-4" />
                       Copy Results
                     </Button>

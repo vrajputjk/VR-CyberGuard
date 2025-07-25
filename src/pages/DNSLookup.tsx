@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Search, ArrowLeft, Copy, Download, Globe } from 'lucide-react';
+import { Search, ArrowLeft, Copy, Download, Globe, Network } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 
@@ -27,10 +28,24 @@ interface DNSResults {
   };
 }
 
+interface SubdomainResult {
+  domain: string;
+  subdomains: {
+    subdomain: string;
+    ip: string;
+    status: 'active' | 'inactive';
+    services: string[];
+    lastChecked: string;
+  }[];
+  totalFound: number;
+}
+
 export default function DNSLookup() {
   const [domain, setDomain] = useState('');
+  const [subdomainDomain, setSubdomainDomain] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<DNSResults | null>(null);
+  const [subdomainResults, setSubdomainResults] = useState<SubdomainResult | null>(null);
   const { toast } = useToast();
 
   const performDNSLookup = async () => {
@@ -126,6 +141,74 @@ export default function DNSLookup() {
     URL.revokeObjectURL(url);
   };
 
+  const findSubdomains = async () => {
+    if (!subdomainDomain.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a domain to scan",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 4000));
+
+      const mockSubdomains = [
+        { subdomain: `www.${subdomainDomain}`, ip: '192.168.1.1', status: 'active' as const, services: ['HTTP', 'HTTPS'], lastChecked: new Date().toISOString() },
+        { subdomain: `mail.${subdomainDomain}`, ip: '192.168.1.2', status: 'active' as const, services: ['SMTP', 'IMAP'], lastChecked: new Date().toISOString() },
+        { subdomain: `ftp.${subdomainDomain}`, ip: '192.168.1.3', status: 'inactive' as const, services: ['FTP'], lastChecked: new Date().toISOString() },
+        { subdomain: `api.${subdomainDomain}`, ip: '192.168.1.4', status: 'active' as const, services: ['HTTPS', 'API'], lastChecked: new Date().toISOString() },
+        { subdomain: `blog.${subdomainDomain}`, ip: '192.168.1.5', status: 'active' as const, services: ['HTTP'], lastChecked: new Date().toISOString() },
+        { subdomain: `dev.${subdomainDomain}`, ip: '192.168.1.6', status: 'active' as const, services: ['HTTP'], lastChecked: new Date().toISOString() },
+        { subdomain: `staging.${subdomainDomain}`, ip: '192.168.1.7', status: 'active' as const, services: ['HTTPS'], lastChecked: new Date().toISOString() },
+        { subdomain: `cdn.${subdomainDomain}`, ip: '192.168.1.8', status: 'active' as const, services: ['HTTP', 'HTTPS'], lastChecked: new Date().toISOString() }
+      ];
+
+      const foundSubdomains = mockSubdomains.slice(0, Math.floor(Math.random() * 6) + 4);
+
+      setSubdomainResults({
+        domain: subdomainDomain,
+        subdomains: foundSubdomains,
+        totalFound: foundSubdomains.length
+      });
+
+      toast({
+        title: "Subdomain Scan Complete",
+        description: `Found ${foundSubdomains.length} subdomains`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to scan subdomains",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportSubdomainResults = () => {
+    if (!subdomainResults) return;
+
+    const exportData = {
+      ...subdomainResults,
+      userAgent: navigator.userAgent,
+      toolInfo: 'VR-Cyber-Guard DNS Lookup Tool - Subdomain Scanner'
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `subdomain-scan-${subdomainResults.domain}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const RecordSection = ({ title, records, description }: { title: string; records: DNSRecord[]; description: string }) => (
     <Card className="bg-muted/10 border-muted/20">
       <CardHeader className="pb-3">
@@ -174,48 +257,96 @@ export default function DNSLookup() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Input Section */}
           <div className="space-y-6">
-            <Card className="bg-gradient-card border-primary/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Search className="w-5 h-5 text-primary" />
-                  DNS Query
-                </CardTitle>
-                <CardDescription>
-                  Enter a domain name to retrieve all available DNS records.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="domain">Domain Name</Label>
-                  <Input
-                    id="domain"
-                    value={domain}
-                    onChange={(e) => setDomain(e.target.value)}
-                    placeholder="example.com"
-                    onKeyPress={(e) => e.key === 'Enter' && performDNSLookup()}
-                  />
-                </div>
+            <Tabs defaultValue="dns" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="dns">DNS Lookup</TabsTrigger>
+                <TabsTrigger value="subdomain">Subdomains</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="dns">
+                <Card className="bg-gradient-card border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Search className="w-5 h-5 text-primary" />
+                      DNS Query
+                    </CardTitle>
+                    <CardDescription>
+                      Enter a domain name to retrieve all available DNS records.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="domain">Domain Name</Label>
+                      <Input
+                        id="domain"
+                        value={domain}
+                        onChange={(e) => setDomain(e.target.value)}
+                        placeholder="example.com"
+                        onKeyPress={(e) => e.key === 'Enter' && performDNSLookup()}
+                      />
+                    </div>
 
-                <Button 
-                  onClick={performDNSLookup} 
-                  disabled={loading} 
-                  variant="scan" 
-                  className="w-full gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                      Looking up...
-                    </>
-                  ) : (
-                    <>
-                      <Search className="w-4 h-4" />
-                      Lookup DNS
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
+                    <Button 
+                      onClick={performDNSLookup} 
+                      disabled={loading} 
+                      variant="scan" 
+                      className="w-full gap-2"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          Looking up...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-4 h-4" />
+                          Lookup DNS
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="subdomain">
+                <Card className="bg-gradient-card border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Network className="w-5 h-5 text-primary" />
+                      Subdomain Scanner
+                    </CardTitle>
+                    <CardDescription>
+                      Discover subdomains of a target domain for reconnaissance.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="subdomain-domain">Domain</Label>
+                      <Input
+                        id="subdomain-domain"
+                        value={subdomainDomain}
+                        onChange={(e) => setSubdomainDomain(e.target.value)}
+                        placeholder="example.com"
+                        onKeyPress={(e) => e.key === 'Enter' && findSubdomains()}
+                      />
+                    </div>
+                    <Button onClick={findSubdomains} disabled={loading} variant="scan" className="w-full gap-2">
+                      {loading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          Scanning...
+                        </>
+                      ) : (
+                        <>
+                          <Network className="w-4 h-4" />
+                          Find Subdomains
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
 
             {/* DNS Information */}
             <Card className="bg-accent/10 border-accent/20">
@@ -247,7 +378,59 @@ export default function DNSLookup() {
 
           {/* Results Section */}
           <div>
-            {results ? (
+            {subdomainResults ? (
+              <div className="space-y-6">
+                <Card className="bg-gradient-card border-primary/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <Network className="w-5 h-5 text-primary" />
+                        Subdomain Discovery
+                      </span>
+                      <Badge className="bg-primary/20 text-primary border-primary/30">
+                        {subdomainResults.totalFound} Found
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label>Target Domain: {subdomainResults.domain}</Label>
+                    </div>
+                    
+                    <div>
+                      <Label className="mb-3 block">Discovered Subdomains</Label>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {subdomainResults.subdomains.map((sub, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-muted/10 rounded">
+                            <div>
+                              <p className="font-mono text-sm">{sub.subdomain}</p>
+                              <p className="text-xs text-muted-foreground">IP: {sub.ip}</p>
+                              <p className="text-xs text-muted-foreground">Services: {sub.services.join(', ')}</p>
+                            </div>
+                            <Badge className={sub.status === 'active' ? 
+                              'bg-primary/20 text-primary border-primary/30' : 
+                              'bg-muted text-muted-foreground border-muted'}>
+                              {sub.status}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-4 border-t border-border">
+                      <Button onClick={() => navigator.clipboard.writeText(JSON.stringify(subdomainResults, null, 2))} variant="outline" className="flex-1 gap-2">
+                        <Copy className="w-4 h-4" />
+                        Copy Results
+                      </Button>
+                      <Button onClick={exportSubdomainResults} variant="outline" className="flex-1 gap-2">
+                        <Download className="w-4 h-4" />
+                        Export
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : results ? (
               <div className="space-y-6">
                 {/* Summary */}
                 <Card className="bg-gradient-card border-primary/20">
