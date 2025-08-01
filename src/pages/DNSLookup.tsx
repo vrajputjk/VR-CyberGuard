@@ -70,32 +70,49 @@ export default function DNSLookup() {
 
     setLoading(true);
     try {
-      // Simulate DNS lookup with realistic data
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simulate comprehensive DNS lookup with realistic data
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Generate realistic IP addresses based on common patterns
+      const generateRealisticIPs = () => {
+        const commonRanges = [
+          () => `104.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // Cloudflare
+          () => `172.${16 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // AWS
+          () => `52.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // AWS
+          () => `13.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // Microsoft Azure
+          () => `34.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // Google Cloud
+        ];
+        return commonRanges[Math.floor(Math.random() * commonRanges.length)]();
+      };
 
       const mockResults: DNSResults = {
         domain: domain,
         timestamp: new Date().toISOString(),
         records: {
           A: [
-            { type: 'A', value: '93.184.216.34', ttl: 3600 },
-            { type: 'A', value: '93.184.216.35', ttl: 3600 }
+            { type: 'A', value: generateRealisticIPs(), ttl: 300 },
+            ...(Math.random() > 0.5 ? [{ type: 'A', value: generateRealisticIPs(), ttl: 300 }] : [])
           ],
-          AAAA: [
-            { type: 'AAAA', value: '2606:2800:220:1:248:1893:25c8:1946', ttl: 3600 }
-          ],
+          AAAA: Math.random() > 0.3 ? [
+            { type: 'AAAA', value: `2606:2800:220:1:248:1893:25c8:${Math.floor(Math.random() * 65536).toString(16)}`, ttl: 3600 }
+          ] : [],
           MX: [
-            { type: 'MX', value: '10 mail.example.com', ttl: 3600 },
-            { type: 'MX', value: '20 mail2.example.com', ttl: 3600 }
+            { type: 'MX', value: `10 mail.${domain}`, ttl: 3600 },
+            { type: 'MX', value: `20 mail2.${domain}`, ttl: 3600 },
+            ...(Math.random() > 0.7 ? [{ type: 'MX', value: `30 backup.${domain}`, ttl: 3600 }] : [])
           ],
           NS: [
-            { type: 'NS', value: 'ns1.example.com', ttl: 86400 },
-            { type: 'NS', value: 'ns2.example.com', ttl: 86400 }
+            { type: 'NS', value: `ns1.${domain}`, ttl: 86400 },
+            { type: 'NS', value: `ns2.${domain}`, ttl: 86400 },
+            { type: 'NS', value: `ns3.${domain}`, ttl: 86400 },
+            { type: 'NS', value: `ns4.${domain}`, ttl: 86400 }
           ],
           CNAME: [],
           TXT: [
-            { type: 'TXT', value: 'v=spf1 include:_spf.google.com ~all', ttl: 3600 },
-            { type: 'TXT', value: 'google-site-verification=abc123def456', ttl: 3600 }
+            { type: 'TXT', value: 'v=spf1 include:_spf.google.com include:mailgun.org ~all', ttl: 3600 },
+            { type: 'TXT', value: `google-site-verification=${Math.random().toString(36).substr(2, 43)}`, ttl: 3600 },
+            { type: 'TXT', value: `v=DMARC1; p=quarantine; rua=mailto:dmarc@${domain}`, ttl: 3600 },
+            ...(Math.random() > 0.5 ? [{ type: 'TXT', value: `_dnsauth.${domain}=${Math.random().toString(36).substr(2, 32)}`, ttl: 300 }] : [])
           ]
         }
       };

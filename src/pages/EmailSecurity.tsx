@@ -197,27 +197,37 @@ export default function EmailSecurity() {
     try {
       await new Promise(resolve => setTimeout(resolve, 4000));
 
-      // Enhanced OSINT email lookup (like Epieos)
+      // Enhanced OSINT email lookup (like Epieos) - More comprehensive platform list
       const platforms = [
-        'Google', 'Facebook', 'Instagram', 'Twitter', 'LinkedIn', 'GitHub', 'Discord', 'Spotify',
+        'Google', 'Facebook', 'Instagram', 'Twitter/X', 'LinkedIn', 'GitHub', 'Discord', 'Spotify',
         'Netflix', 'Amazon', 'PayPal', 'Adobe', 'Microsoft', 'Apple', 'Skype', 'Zoom',
         'TikTok', 'Snapchat', 'Pinterest', 'Reddit', 'Tumblr', 'WordPress', 'Medium',
-        'Flickr', 'Vimeo', 'SoundCloud', 'Steam', 'Epic Games', 'PlayStation', 'Xbox'
+        'Flickr', 'Vimeo', 'SoundCloud', 'Steam', 'Epic Games', 'PlayStation', 'Xbox',
+        'Telegram', 'WhatsApp Business', 'Signal', 'Clubhouse', 'Twitch', 'OnlyFans',
+        'Patreon', 'Substack', 'Behance', 'Dribbble', 'DeviantArt', 'MySpace', 'Parler',
+        'Gab', 'MeWe', 'Minds', 'BitChute', 'Rumble', 'Gettr', 'Truth Social'
       ];
 
       const mockSources = platforms
-        .filter(() => Math.random() > 0.7)
-        .slice(0, Math.floor(Math.random() * 8) + 3)
-        .map(platform => ({
-          platform,
-          username: `user_${Math.random().toString(36).substr(2, 8)}`,
-          verified: Math.random() > 0.7,
-          profilePicture: Math.random() > 0.5 ? `/api/placeholder/40/40` : undefined,
-          lastSeen: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          profile: platform === 'LinkedIn' ? `https://linkedin.com/in/user123` : undefined,
-          followers: Math.floor(Math.random() * 10000),
-          registrationDate: new Date(Date.now() - Math.random() * 5 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        }));
+        .filter(() => Math.random() > 0.65)
+        .slice(0, Math.floor(Math.random() * 12) + 4)
+        .map(platform => {
+          const usernames = [`user_${Math.random().toString(36).substr(2, 8)}`, lookupEmail.split('@')[0], `${lookupEmail.split('@')[0]}_${Math.floor(Math.random() * 1000)}`];
+          return {
+            platform,
+            username: usernames[Math.floor(Math.random() * usernames.length)],
+            verified: Math.random() > 0.75,
+            profilePicture: Math.random() > 0.4 ? `/api/placeholder/40/40` : undefined,
+            lastSeen: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            profile: platform === 'LinkedIn' ? `https://linkedin.com/in/${usernames[0]}` : 
+                    platform === 'GitHub' ? `https://github.com/${usernames[0]}` :
+                    platform === 'Twitter/X' ? `https://x.com/${usernames[0]}` : undefined,
+            followers: Math.floor(Math.random() * 50000),
+            registrationDate: new Date(Date.now() - Math.random() * 8 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            location: ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Japan', 'Unknown'][Math.floor(Math.random() * 8)],
+            bio: Math.random() > 0.6 ? 'Software Developer • Tech Enthusiast • Privacy Advocate' : undefined
+          };
+        });
 
       const knownBreaches = [
         'LinkedIn (2021)', 'Facebook (2019)', 'Equifax (2017)', 'Yahoo (2013-2014)', 

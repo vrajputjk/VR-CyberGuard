@@ -38,10 +38,11 @@ export default function Dirb() {
   const { toast } = useToast();
 
   const commonWordlists = {
-    common: ['admin', 'administrator', 'login', 'uploads', 'images', 'js', 'css', 'api', 'backup', 'config', 'test', 'dev', 'old', 'tmp'],
-    directories: ['admin', 'administrator', 'uploads', 'images', 'files', 'docs', 'backup', 'old', 'test', 'dev', 'api', 'assets', 'static', 'public'],
-    files: ['robots.txt', 'sitemap.xml', '.htaccess', 'config.php', 'admin.php', 'login.php', 'upload.php', 'backup.zip', 'database.sql', 'test.txt'],
-    sensitive: ['admin', 'administrator', 'login', 'backup', 'config', 'database', 'sql', 'env', 'git', 'svn', 'old', 'bak', 'tmp']
+    common: ['admin', 'administrator', 'login', 'uploads', 'images', 'js', 'css', 'api', 'backup', 'config', 'test', 'dev', 'old', 'tmp', 'wp-admin', 'phpmyadmin', 'cpanel', 'webmail', 'ftp', 'mail', 'email', 'portal', 'dashboard', 'panel'],
+    directories: ['admin', 'administrator', 'uploads', 'images', 'files', 'docs', 'backup', 'old', 'test', 'dev', 'api', 'assets', 'static', 'public', 'private', 'secure', 'protected', 'restricted', 'internal', 'staff', 'employee', 'member', 'user', 'client', 'customer'],
+    files: ['robots.txt', 'sitemap.xml', '.htaccess', 'config.php', 'admin.php', 'login.php', 'upload.php', 'backup.zip', 'database.sql', 'test.txt', 'readme.txt', 'changelog.txt', 'info.php', 'phpinfo.php', 'index.php', '.env', '.git', 'web.config', 'crossdomain.xml'],
+    sensitive: ['admin', 'administrator', 'login', 'backup', 'config', 'database', 'sql', 'env', 'git', 'svn', 'old', 'bak', 'tmp', 'secret', 'private', 'confidential', 'internal', 'restricted', 'password', 'passwords', 'credentials', 'keys', 'token', 'tokens', 'auth'],
+    penetration: ['admin', 'phpmyadmin', 'wp-admin', 'wp-login', 'cpanel', 'webmail', 'mail', 'email', 'ftp', 'ssh', 'telnet', 'mysql', 'mssql', 'oracle', 'postgresql', 'mongodb', 'redis', 'memcached', 'elasticsearch', 'kibana', 'grafana', 'jenkins', 'gitlab', 'github']
   };
 
   const startDirectoryBruteforce = async () => {
@@ -220,10 +221,11 @@ export default function Dirb() {
                     value={selectedWordlist}
                     onChange={(e) => setSelectedWordlist(e.target.value)}
                   >
-                    <option value="common">Common Paths</option>
-                    <option value="directories">Directory Names</option>
-                    <option value="files">Common Files</option>
-                    <option value="sensitive">Sensitive Paths</option>
+                    <option value="common">Common Paths (24 entries)</option>
+                    <option value="directories">Directory Names (24 entries)</option>
+                    <option value="files">Common Files (20 entries)</option>
+                    <option value="sensitive">Sensitive Paths (25 entries)</option>
+                    <option value="penetration">Penetration Testing (25 entries)</option>
                   </select>
                 </div>
 
