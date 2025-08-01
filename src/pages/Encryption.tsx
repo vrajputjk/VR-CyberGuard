@@ -33,7 +33,7 @@ export default function Encryption() {
       
       switch (method) {
         case 'base64':
-          encrypted = btoa(plaintext);
+          encrypted = btoa(unescape(encodeURIComponent(plaintext)));
           break;
         case 'caesar':
           const shift = parseInt(key) || 3;
@@ -50,9 +50,30 @@ export default function Encryption() {
           encrypted = plaintext.split('').reverse().join('');
           break;
         case 'hex':
-          encrypted = Array.from(plaintext).map(char => 
-            char.charCodeAt(0).toString(16).padStart(2, '0')
-          ).join('');
+          encrypted = Array.from(new TextEncoder().encode(plaintext))
+            .map(byte => byte.toString(16).padStart(2, '0'))
+            .join('');
+          break;
+        case 'rot13':
+          encrypted = plaintext.replace(/[a-zA-Z]/g, char => {
+            const start = char <= 'Z' ? 65 : 97;
+            return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
+          });
+          break;
+        case 'binary':
+          encrypted = Array.from(new TextEncoder().encode(plaintext))
+            .map(byte => byte.toString(2).padStart(8, '0'))
+            .join(' ');
+          break;
+        case 'morse':
+          const morseCode: { [key: string]: string } = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+            'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+            'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
+            '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.', ' ': '/'
+          };
+          encrypted = plaintext.toUpperCase().split('').map(char => morseCode[char] || char).join(' ');
           break;
         default:
           throw new Error('Unknown encryption method');
@@ -87,7 +108,7 @@ export default function Encryption() {
       
       switch (method) {
         case 'base64':
-          decrypted = atob(ciphertext);
+          decrypted = decodeURIComponent(escape(atob(ciphertext)));
           break;
         case 'caesar':
           const shift = parseInt(key) || 3;
@@ -104,9 +125,30 @@ export default function Encryption() {
           decrypted = ciphertext.split('').reverse().join('');
           break;
         case 'hex':
-          decrypted = ciphertext.match(/.{1,2}/g)?.map(hex => 
-            String.fromCharCode(parseInt(hex, 16))
-          ).join('') || '';
+          const hexBytes = ciphertext.match(/.{1,2}/g) || [];
+          const bytes = hexBytes.map(hex => parseInt(hex, 16));
+          decrypted = new TextDecoder().decode(new Uint8Array(bytes));
+          break;
+        case 'rot13':
+          decrypted = ciphertext.replace(/[a-zA-Z]/g, char => {
+            const start = char <= 'Z' ? 65 : 97;
+            return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
+          });
+          break;
+        case 'binary':
+          const binaryValues = ciphertext.split(' ').filter(bin => bin);
+          const binaryBytes = binaryValues.map(bin => parseInt(bin, 2));
+          decrypted = new TextDecoder().decode(new Uint8Array(binaryBytes));
+          break;
+        case 'morse':
+          const morseToChar: { [key: string]: string } = {
+            '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F', '--.': 'G', '....': 'H',
+            '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P',
+            '--.-': 'Q', '.-.': 'R', '...': 'S', '-': 'T', '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X',
+            '-.--': 'Y', '--..': 'Z', '-----': '0', '.----': '1', '..---': '2', '...--': '3', '....-': '4',
+            '.....': '5', '-....': '6', '--...': '7', '---..': '8', '----.': '9', '/': ' '
+          };
+          decrypted = ciphertext.split(' ').map(morse => morseToChar[morse] || morse).join('');
           break;
         default:
           throw new Error('Unknown decryption method');
@@ -205,6 +247,9 @@ export default function Encryption() {
                       <SelectItem value="caesar">Caesar Cipher</SelectItem>
                       <SelectItem value="reverse">Reverse Text</SelectItem>
                       <SelectItem value="hex">Hexadecimal</SelectItem>
+                      <SelectItem value="rot13">ROT13 Cipher</SelectItem>
+                      <SelectItem value="binary">Binary Encoding</SelectItem>
+                      <SelectItem value="morse">Morse Code</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -55,37 +55,70 @@ export default function BreachChecker() {
       // Simulate breach checking
       await new Promise(resolve => setTimeout(resolve, 2500));
 
-      // Mock breach data
+      // Enhanced breach database with more realistic data
       const sampleBreaches: BreachData[] = [
         {
           name: "LinkedIn Data Breach",
           date: "2021-06-22",
-          compromisedData: ["Email addresses", "Phone numbers", "Geolocation data", "LinkedIn URLs"],
-          description: "700 million LinkedIn profiles were scraped and posted for sale",
+          compromisedData: ["Email addresses", "Phone numbers", "Geolocation data", "LinkedIn URLs", "Professional titles"],
+          description: "700 million LinkedIn profiles were scraped and posted for sale containing professional networking data",
           verified: true
         },
         {
           name: "Facebook Data Leak", 
           date: "2021-04-03",
-          compromisedData: ["Email addresses", "Phone numbers", "Names", "Location data"],
-          description: "533 million Facebook users' data was leaked online",
+          compromisedData: ["Email addresses", "Phone numbers", "Names", "Location data", "Relationship status"],
+          description: "533 million Facebook users' personal data was leaked including private contact information",
+          verified: true
+        },
+        {
+          name: "Adobe Creative Cloud Breach",
+          date: "2022-10-19",
+          compromisedData: ["Email addresses", "Encrypted passwords", "Names", "Payment data"],
+          description: "Adobe customer accounts compromised exposing creative professionals' data",
+          verified: true
+        },
+        {
+          name: "Canva Security Incident",
+          date: "2019-05-24",
+          compromisedData: ["Email addresses", "Names", "Usernames", "City/Country data"],
+          description: "139 million Canva users affected in security breach of design platform",
           verified: true
         },
         {
           name: "Collection #1",
           date: "2019-01-17",
           compromisedData: ["Email addresses", "Passwords"],
-          description: "Large collection of credentials from multiple breaches",
+          description: "Large collection of credentials from multiple breaches totaling 773 million unique emails",
           verified: false
+        },
+        {
+          name: "Dropbox Data Breach",
+          date: "2022-10-14",
+          compromisedData: ["Email addresses", "Hashed passwords", "Names"],
+          description: "68 million Dropbox accounts compromised through third-party service",
+          verified: true
         }
       ];
 
-      // Simulate random breach results
+      // Enhanced breach simulation based on email patterns
+      const domain = email.split('@')[1]?.toLowerCase();
+      let foundBreaches: BreachData[] = [];
+      
+      // Higher chance for common email providers
+      const commonProviders = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
+      const isCommonProvider = commonProviders.includes(domain);
+      
       const random = Math.random();
-      const foundBreaches = random > 0.7 ? [] : 
-                           random > 0.4 ? [sampleBreaches[0]] :
-                           random > 0.2 ? [sampleBreaches[0], sampleBreaches[1]] :
-                           sampleBreaches;
+      const breachProbability = isCommonProvider ? 0.6 : 0.3;
+      
+      if (random < breachProbability) {
+        // Select random number of breaches (1-4)
+        const numBreaches = Math.floor(Math.random() * 4) + 1;
+        foundBreaches = sampleBreaches
+          .sort(() => Math.random() - 0.5)
+          .slice(0, numBreaches);
+      }
 
       const riskLevel = foundBreaches.length === 0 ? 'low' :
                        foundBreaches.length <= 1 ? 'medium' : 'high';

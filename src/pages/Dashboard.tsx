@@ -1,4 +1,4 @@
-import { Shield, Scan, Lock, Eye, Globe, Mail, Network, Image, Key, Search, Fingerprint, AlertTriangle, Hash, Download, FolderOpen } from 'lucide-react';
+import { Shield, Scan, Lock, Eye, Globe, Mail, Network, Image, Key, Search, Fingerprint, AlertTriangle, Hash, Download, FolderOpen, Bug } from 'lucide-react';
 import { IPDisplay } from '@/components/IPDisplay';
 import { ToolCard } from '@/components/ToolCard';
 
@@ -92,6 +92,15 @@ const tools = [
     icon: FolderOpen,
     href: '/dirb',
     riskLevel: 'medium' as const,
+    isNew: true
+  },
+  {
+    title: "Nikto Scanner",
+    description: "Advanced web vulnerability scanner for comprehensive security assessment and penetration testing.",
+    category: 'scanning' as const,
+    icon: Bug,
+    href: '/nikto',
+    riskLevel: 'high' as const,
     isNew: true
   }
 ];

@@ -40,39 +40,72 @@ export default function PhishingDetector() {
       const indicators: string[] = [];
       let score = 0;
       
-      // Check for suspicious patterns
-      if (url.includes('bit.ly') || url.includes('tinyurl') || url.includes('t.co')) {
-        indicators.push('URL shortener detected');
-        score += 30;
+      // Enhanced URL analysis patterns
+      const urlLower = url.toLowerCase();
+      
+      // URL shorteners (higher risk)
+      const shorteners = ['bit.ly', 'tinyurl', 't.co', 'goo.gl', 'ow.ly', 'short.link', 'tiny.cc'];
+      if (shorteners.some(s => urlLower.includes(s))) {
+        indicators.push('URL shortener detected - hides true destination');
+        score += 35;
       }
       
-      if (url.includes('phishing') || url.includes('malware') || url.includes('virus')) {
-        indicators.push('Suspicious keywords in URL');
+      // Suspicious keywords
+      const suspiciousKeywords = ['phishing', 'malware', 'virus', 'hack', 'crack', 'trojan', 'ransomware'];
+      if (suspiciousKeywords.some(keyword => urlLower.includes(keyword))) {
+        indicators.push('Suspicious keywords in URL detected');
         score += 50;
       }
       
+      // Security indicators
       if (!url.startsWith('https://')) {
-        indicators.push('No HTTPS encryption');
-        score += 20;
+        indicators.push('No HTTPS encryption - data not secure');
+        score += 25;
       }
       
-      // Check for homograph attacks
-      if (/[а-я]/.test(url) || /[α-ω]/.test(url)) {
-        indicators.push('Possible homograph attack (non-Latin characters)');
+      // Homograph/IDN attacks
+      if (/[а-я]/.test(url) || /[α-ω]/.test(url) || /[א-ת]/.test(url)) {
+        indicators.push('Possible homograph attack using non-Latin characters');
+        score += 45;
+      }
+      
+      // Suspicious domain patterns
+      const suspiciousPrefixes = ['secure-', 'verify-', 'update-', 'confirm-', 'account-', 'support-', 'help-'];
+      if (suspiciousPrefixes.some(prefix => urlLower.includes(prefix))) {
+        indicators.push('Suspicious domain pattern mimicking legitimate services');
         score += 40;
       }
-      
-      // Check for suspicious domains
-      const suspiciousDomains = ['free-', 'secure-', 'verify-', 'update-', 'confirm-'];
-      if (suspiciousDomains.some(domain => url.includes(domain))) {
-        indicators.push('Suspicious domain pattern');
-        score += 35;
-      }
 
-      // Check for IP addresses instead of domains
+      // IP addresses instead of domains
       if (/\d+\.\d+\.\d+\.\d+/.test(url)) {
         indicators.push('IP address used instead of domain name');
         score += 45;
+      }
+
+      // Excessive subdomains
+      const subdomainCount = (url.match(/\./g) || []).length;
+      if (subdomainCount > 4) {
+        indicators.push('Excessive subdomains detected');
+        score += 25;
+      }
+
+      // Suspicious TLDs
+      const suspiciousTlds = ['.tk', '.ml', '.cf', '.ga', '.pw', '.top'];
+      if (suspiciousTlds.some(tld => urlLower.includes(tld))) {
+        indicators.push('Suspicious top-level domain');
+        score += 30;
+      }
+
+      // Long domains
+      try {
+        const domain = new URL(url).hostname;
+        if (domain.length > 30) {
+          indicators.push('Unusually long domain name');
+          score += 20;
+        }
+      } catch (e) {
+        indicators.push('Invalid URL format');
+        score += 60;
       }
 
       let status: 'safe' | 'suspicious' | 'phishing';

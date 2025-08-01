@@ -39,7 +39,7 @@ export default function NetworkScanner() {
   const { toast } = useToast();
 
   const commonPorts = [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995];
-  const topPorts = [21, 22, 23, 25, 53, 80, 110, 135, 139, 143, 443, 445, 993, 995, 1723, 3306, 3389, 5432, 5900, 8080];
+  const topPorts = [21, 22, 23, 25, 53, 80, 110, 135, 139, 143, 443, 445, 993, 995, 1433, 1723, 3306, 3389, 5432, 5900, 8080, 8443, 9200, 27017];
 
   const simulatePortScan = async () => {
     if (!target.trim()) {
@@ -79,22 +79,41 @@ export default function NetworkScanner() {
         let service: string | undefined;
         let version: string | undefined;
 
-        if (random > 0.8) {
+        // Enhanced service detection with realistic probabilities
+        const isCommonPort = [21, 22, 80, 443].includes(port);
+        const openProbability = isCommonPort ? 0.4 : 0.15;
+        
+        if (random > (1 - openProbability)) {
           status = 'open';
-          // Add common services
+          // Enhanced service detection
           switch (port) {
-            case 21: service = 'FTP'; version = 'vsftpd 3.0.3'; break;
-            case 22: service = 'SSH'; version = 'OpenSSH 8.0'; break;
-            case 23: service = 'Telnet'; break;
-            case 25: service = 'SMTP'; version = 'Postfix'; break;
-            case 53: service = 'DNS'; break;
-            case 80: service = 'HTTP'; version = 'Apache 2.4.41'; break;
-            case 443: service = 'HTTPS'; version = 'Apache 2.4.41'; break;
-            case 3306: service = 'MySQL'; version = '8.0.25'; break;
-            case 3389: service = 'RDP'; break;
-            default: service = 'Unknown';
+            case 21: service = 'FTP'; version = Math.random() > 0.5 ? 'vsftpd 3.0.3' : 'ProFTPD 1.3.6'; break;
+            case 22: service = 'SSH'; version = Math.random() > 0.5 ? 'OpenSSH 8.9' : 'OpenSSH 7.4'; break;
+            case 23: service = 'Telnet'; version = 'BSD-derived'; break;
+            case 25: service = 'SMTP'; version = Math.random() > 0.5 ? 'Postfix 3.4.13' : 'Exim 4.94'; break;
+            case 53: service = 'DNS'; version = Math.random() > 0.5 ? 'BIND 9.16.1' : 'dnsmasq 2.80'; break;
+            case 80: service = 'HTTP'; version = Math.random() > 0.5 ? 'Apache 2.4.41' : 'nginx 1.18.0'; break;
+            case 110: service = 'POP3'; version = 'Dovecot 2.3.13'; break;
+            case 135: service = 'RPC'; version = 'Microsoft Windows RPC'; break;
+            case 139: service = 'NetBIOS-SSN'; version = 'Samba 4.13.17'; break;
+            case 143: service = 'IMAP'; version = 'Dovecot 2.3.13'; break;
+            case 443: service = 'HTTPS'; version = Math.random() > 0.5 ? 'Apache 2.4.41' : 'nginx 1.18.0'; break;
+            case 445: service = 'SMB'; version = 'Samba 4.13.17'; break;
+            case 993: service = 'IMAPS'; version = 'Dovecot 2.3.13'; break;
+            case 995: service = 'POP3S'; version = 'Dovecot 2.3.13'; break;
+            case 1433: service = 'MSSQL'; version = 'Microsoft SQL Server 2019'; break;
+            case 1723: service = 'PPTP'; version = 'Microsoft PPTP VPN'; break;
+            case 3306: service = 'MySQL'; version = Math.random() > 0.5 ? 'MySQL 8.0.28' : 'MariaDB 10.6.7'; break;
+            case 3389: service = 'RDP'; version = 'Microsoft Terminal Services'; break;
+            case 5432: service = 'PostgreSQL'; version = 'PostgreSQL 13.7'; break;
+            case 5900: service = 'VNC'; version = 'VNC 4.1.3'; break;
+            case 8080: service = 'HTTP-Proxy'; version = 'Tomcat 9.0.62'; break;
+            case 8443: service = 'HTTPS-Alt'; version = 'Tomcat 9.0.62'; break;
+            case 9200: service = 'Elasticsearch'; version = 'Elasticsearch 7.17.3'; break;
+            case 27017: service = 'MongoDB'; version = 'MongoDB 5.0.8'; break;
+            default: service = 'Unknown'; version = 'Unknown version';
           }
-        } else if (random > 0.6) {
+        } else if (random > 0.55) {
           status = 'filtered';
         } else {
           status = 'closed';

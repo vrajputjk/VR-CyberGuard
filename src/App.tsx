@@ -15,6 +15,7 @@ import LinkObfuscator from "./pages/LinkObfuscator";
 import Steganography from "./pages/Steganography";
 import Hasher from "./pages/Hasher";
 import Dirb from "./pages/Dirb";
+import Nikto from "./pages/Nikto";
 
 import NotFound from "./pages/NotFound";
 
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/steganography" element={<Steganography />} />
           <Route path="/hasher" element={<Hasher />} />
           <Route path="/dirb" element={<Dirb />} />
+          <Route path="/nikto" element={<Nikto />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
