@@ -238,10 +238,10 @@ export default function Nikto() {
 
   const getSeverityColor = (type: string) => {
     switch (type) {
-      case 'critical': return 'text-red-500 bg-red-50 border-red-200';
-      case 'warning': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'info': return 'text-blue-500 bg-blue-50 border-blue-200';
-      default: return 'text-gray-500 bg-gray-50 border-gray-200';
+      case 'critical': return 'text-destructive bg-destructive/10 border-destructive/20';
+      case 'warning': return 'text-yellow-600 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-800';
+      case 'info': return 'text-primary bg-primary/10 border-primary/20';
+      default: return 'text-muted-foreground bg-muted/50 border-border';
     }
   };
 
