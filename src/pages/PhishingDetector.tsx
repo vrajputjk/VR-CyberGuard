@@ -253,7 +253,7 @@ export default function PhishingDetector() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'safe': return 'bg-primary/20 text-primary border-primary/30';
-      case 'suspicious': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'suspicious': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800';
       case 'phishing': return 'bg-destructive/20 text-destructive border-destructive/30';
       default: return 'bg-muted text-muted-foreground border-muted';
     }

@@ -342,7 +342,7 @@ ${extractedContent}
                     >
                       {loading ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin shadow-glow-primary" />
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                           Processing Advanced Steganography...
                         </>
                       ) : (
@@ -421,7 +421,7 @@ ${extractedContent}
                     >
                       {loading ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin shadow-glow-accent" />
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                           Running Steganalysis...
                         </>
                       ) : (

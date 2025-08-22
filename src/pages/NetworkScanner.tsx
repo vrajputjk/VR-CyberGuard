@@ -180,7 +180,7 @@ export default function NetworkScanner() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'open': return 'bg-destructive/20 text-destructive border-destructive/30';
-      case 'filtered': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'filtered': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800';
       case 'closed': return 'bg-primary/20 text-primary border-primary/30';
       default: return 'bg-muted text-muted-foreground border-muted';
     }
