@@ -73,16 +73,27 @@ export default function DNSLookup() {
       // Simulate comprehensive DNS lookup with realistic data
       await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Generate realistic IP addresses based on common patterns
+      // Generate realistic IP addresses based on hosting providers and CDNs
       const generateRealisticIPs = () => {
-        const commonRanges = [
-          () => `104.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // Cloudflare
-          () => `172.${16 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // AWS
-          () => `52.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // AWS
-          () => `13.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // Microsoft Azure
-          () => `34.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`, // Google Cloud
+        const providers = [
+          // Cloudflare
+          () => `104.${16 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `172.${64 + Math.floor(Math.random() * 32)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // AWS
+          () => `52.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `54.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Google Cloud
+          () => `34.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `35.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Microsoft Azure
+          () => `13.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `20.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // DigitalOcean
+          () => `138.${68 + Math.floor(Math.random() * 32)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Linode
+          () => `172.${104 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`
         ];
-        return commonRanges[Math.floor(Math.random() * commonRanges.length)]();
+        return providers[Math.floor(Math.random() * providers.length)]();
       };
 
       const mockResults: DNSResults = {
@@ -91,10 +102,12 @@ export default function DNSLookup() {
         records: {
           A: [
             { type: 'A', value: generateRealisticIPs(), ttl: 300 },
-            ...(Math.random() > 0.5 ? [{ type: 'A', value: generateRealisticIPs(), ttl: 300 }] : [])
+            ...(Math.random() > 0.4 ? [{ type: 'A', value: generateRealisticIPs(), ttl: 300 }] : []),
+            ...(Math.random() > 0.7 ? [{ type: 'A', value: generateRealisticIPs(), ttl: 300 }] : [])
           ],
           AAAA: Math.random() > 0.3 ? [
-            { type: 'AAAA', value: `2606:2800:220:1:248:1893:25c8:${Math.floor(Math.random() * 65536).toString(16)}`, ttl: 3600 }
+            { type: 'AAAA', value: `2606:2800:220:1:248:1893:25c8:${Math.floor(Math.random() * 65536).toString(16)}`, ttl: 3600 },
+            ...(Math.random() > 0.6 ? [{ type: 'AAAA', value: `2001:db8::${Math.floor(Math.random() * 65536).toString(16)}:${Math.floor(Math.random() * 65536).toString(16)}`, ttl: 3600 }] : [])
           ] : [],
           MX: [
             { type: 'MX', value: `10 mail.${domain}`, ttl: 3600 },
@@ -172,18 +185,62 @@ export default function DNSLookup() {
     try {
       await new Promise(resolve => setTimeout(resolve, 4000));
 
-      const mockSubdomains = [
-        { subdomain: `www.${subdomainDomain}`, ip: '192.168.1.1', status: 'active' as const, services: ['HTTP', 'HTTPS'], lastChecked: new Date().toISOString() },
-        { subdomain: `mail.${subdomainDomain}`, ip: '192.168.1.2', status: 'active' as const, services: ['SMTP', 'IMAP'], lastChecked: new Date().toISOString() },
-        { subdomain: `ftp.${subdomainDomain}`, ip: '192.168.1.3', status: 'inactive' as const, services: ['FTP'], lastChecked: new Date().toISOString() },
-        { subdomain: `api.${subdomainDomain}`, ip: '192.168.1.4', status: 'active' as const, services: ['HTTPS', 'API'], lastChecked: new Date().toISOString() },
-        { subdomain: `blog.${subdomainDomain}`, ip: '192.168.1.5', status: 'active' as const, services: ['HTTP'], lastChecked: new Date().toISOString() },
-        { subdomain: `dev.${subdomainDomain}`, ip: '192.168.1.6', status: 'active' as const, services: ['HTTP'], lastChecked: new Date().toISOString() },
-        { subdomain: `staging.${subdomainDomain}`, ip: '192.168.1.7', status: 'active' as const, services: ['HTTPS'], lastChecked: new Date().toISOString() },
-        { subdomain: `cdn.${subdomainDomain}`, ip: '192.168.1.8', status: 'active' as const, services: ['HTTP', 'HTTPS'], lastChecked: new Date().toISOString() }
+      // Generate realistic IP addresses (same function as above)
+      const generateRealisticIPs = () => {
+        const providers = [
+          // Cloudflare
+          () => `104.${16 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `172.${64 + Math.floor(Math.random() * 32)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // AWS
+          () => `52.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `54.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Google Cloud
+          () => `34.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `35.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Microsoft Azure
+          () => `13.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `20.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // DigitalOcean
+          () => `138.${68 + Math.floor(Math.random() * 32)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Linode
+          () => `172.${104 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`
+        ];
+        return providers[Math.floor(Math.random() * providers.length)]();
+      };
+
+      // Helper function for realistic services
+      const getServicesForSubdomain = (subdomain: string): string[] => {
+        const serviceMap: { [key: string]: string[] } = {
+          www: ['HTTP', 'HTTPS'],
+          mail: ['SMTP', 'IMAP', 'POP3'],
+          ftp: ['FTP', 'SFTP'],
+          api: ['HTTPS', 'REST API'],
+          admin: ['HTTPS', 'SSH'],
+          vpn: ['OpenVPN', 'IKEv2'],
+          db: ['MySQL', 'PostgreSQL'],
+          redis: ['Redis'],
+          mongo: ['MongoDB']
+        };
+        return serviceMap[subdomain] || ['HTTP', 'HTTPS'];
+      };
+
+      const commonSubdomains = [
+        'www', 'mail', 'ftp', 'api', 'blog', 'dev', 'staging', 'test', 'cdn', 'assets',
+        'admin', 'panel', 'dashboard', 'portal', 'secure', 'shop', 'store', 'support',
+        'help', 'docs', 'beta', 'demo', 'sandbox', 'vpn', 'remote', 'git', 'jenkins',
+        'grafana', 'kibana', 'elastic', 'redis', 'mysql', 'postgres', 'mongo', 'db'
       ];
 
-      const foundSubdomains = mockSubdomains.slice(0, Math.floor(Math.random() * 6) + 4);
+      const foundSubdomains = commonSubdomains
+        .filter(() => Math.random() > 0.65) // More selective
+        .slice(0, Math.floor(Math.random() * 8) + 6) // 6-14 subdomains
+        .map((subdomain, index) => ({
+          subdomain: `${subdomain}.${subdomainDomain}`,
+          ip: generateRealisticIPs(),
+          status: Math.random() > 0.2 ? 'active' as const : 'inactive' as const,
+          services: getServicesForSubdomain(subdomain),
+          lastChecked: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
+        }));
 
       setSubdomainResults({
         domain: subdomainDomain,

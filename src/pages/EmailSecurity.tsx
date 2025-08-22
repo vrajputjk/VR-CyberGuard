@@ -197,37 +197,84 @@ export default function EmailSecurity() {
     try {
       await new Promise(resolve => setTimeout(resolve, 4000));
 
-      // Enhanced OSINT email lookup (like Epieos) - More comprehensive platform list
+      // Enhanced OSINT email lookup with 50+ platforms (like Holehe, Epieos)
       const platforms = [
-        'Google', 'Facebook', 'Instagram', 'Twitter/X', 'LinkedIn', 'GitHub', 'Discord', 'Spotify',
-        'Netflix', 'Amazon', 'PayPal', 'Adobe', 'Microsoft', 'Apple', 'Skype', 'Zoom',
-        'TikTok', 'Snapchat', 'Pinterest', 'Reddit', 'Tumblr', 'WordPress', 'Medium',
-        'Flickr', 'Vimeo', 'SoundCloud', 'Steam', 'Epic Games', 'PlayStation', 'Xbox',
-        'Telegram', 'WhatsApp Business', 'Signal', 'Clubhouse', 'Twitch', 'OnlyFans',
-        'Patreon', 'Substack', 'Behance', 'Dribbble', 'DeviantArt', 'MySpace', 'Parler',
-        'Gab', 'MeWe', 'Minds', 'BitChute', 'Rumble', 'Gettr', 'Truth Social'
+        // Social Media
+        'Facebook', 'Instagram', 'Twitter/X', 'LinkedIn', 'TikTok', 'Snapchat', 'Pinterest', 
+        'Reddit', 'Tumblr', 'Flickr', 'Vimeo', 'YouTube', 'Twitch', 'Discord',
+        // Professional/Business
+        'GitHub', 'GitLab', 'Bitbucket', 'Stack Overflow', 'AngelList', 'Crunchbase', 'Behance', 'Dribbble',
+        // Communication
+        'Skype', 'Zoom', 'Telegram', 'WhatsApp Business', 'Signal', 'Slack', 'Microsoft Teams',
+        // Entertainment/Gaming
+        'Spotify', 'Netflix', 'Steam', 'Epic Games', 'PlayStation', 'Xbox', 'Twitch Prime',
+        // Shopping/Finance
+        'Amazon', 'eBay', 'PayPal', 'Venmo', 'Cash App', 'Coinbase', 'Binance',
+        // Cloud/Tech
+        'Google', 'Microsoft', 'Apple ID', 'Adobe', 'Dropbox', 'OneDrive', 'iCloud',
+        // Dating/Social
+        'Tinder', 'Bumble', 'Match.com', 'OKCupid', 'Plenty of Fish', 'Badoo',
+        // News/Media
+        'Medium', 'Substack', 'WordPress', 'Blogger', 'DeviantArt', 'Patreon',
+        // Alternative Platforms
+        'Parler', 'Gab', 'MeWe', 'Minds', 'BitChute', 'Rumble', 'Gettr', 'Truth Social'
       ];
 
       const mockSources = platforms
-        .filter(() => Math.random() > 0.65)
-        .slice(0, Math.floor(Math.random() * 12) + 4)
+        .filter(() => Math.random() > 0.75) // More selective
+        .slice(0, Math.floor(Math.random() * 15) + 5) // 5-20 platforms
         .map(platform => {
-          const usernames = [`user_${Math.random().toString(36).substr(2, 8)}`, lookupEmail.split('@')[0], `${lookupEmail.split('@')[0]}_${Math.floor(Math.random() * 1000)}`];
+          const usernames = [
+            `user_${Math.random().toString(36).substr(2, 8)}`, 
+            lookupEmail.split('@')[0], 
+            `${lookupEmail.split('@')[0]}_${Math.floor(Math.random() * 1000)}`,
+            `${lookupEmail.split('@')[0]}.${Math.floor(Math.random() * 100)}`
+          ];
+          
           return {
             platform,
             username: usernames[Math.floor(Math.random() * usernames.length)],
-            verified: Math.random() > 0.75,
-            profilePicture: Math.random() > 0.4 ? `/api/placeholder/40/40` : undefined,
+            verified: Math.random() > 0.85,
+            profilePicture: Math.random() > 0.6 ? `/api/placeholder/40/40` : undefined,
             lastSeen: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            profile: platform === 'LinkedIn' ? `https://linkedin.com/in/${usernames[0]}` : 
-                    platform === 'GitHub' ? `https://github.com/${usernames[0]}` :
-                    platform === 'Twitter/X' ? `https://x.com/${usernames[0]}` : undefined,
-            followers: Math.floor(Math.random() * 50000),
+            profile: generateProfileUrl(platform, usernames[0]),
+            followers: platform === 'Twitter/X' || platform === 'Instagram' ? Math.floor(Math.random() * 100000) : undefined,
             registrationDate: new Date(Date.now() - Math.random() * 8 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            location: ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Japan', 'Unknown'][Math.floor(Math.random() * 8)],
-            bio: Math.random() > 0.6 ? 'Software Developer • Tech Enthusiast • Privacy Advocate' : undefined
+            location: ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Japan', 'Netherlands', 'Sweden', 'Unknown'][Math.floor(Math.random() * 10)],
+            bio: Math.random() > 0.7 ? generateRandomBio() : undefined,
+            accountType: Math.random() > 0.9 ? 'Business' : 'Personal',
+            twoFactorEnabled: Math.random() > 0.6,
+            emailVisible: Math.random() > 0.8
           };
         });
+
+      // Helper functions for realistic data
+      const generateProfileUrl = (platform: string, username: string): string | undefined => {
+        const urlMap: { [key: string]: string } = {
+          'LinkedIn': `https://linkedin.com/in/${username}`,
+          'GitHub': `https://github.com/${username}`,
+          'Twitter/X': `https://x.com/${username}`,
+          'Instagram': `https://instagram.com/${username}`,
+          'Facebook': `https://facebook.com/${username}`,
+          'TikTok': `https://tiktok.com/@${username}`,
+          'YouTube': `https://youtube.com/@${username}`
+        };
+        return urlMap[platform];
+      };
+
+      const generateRandomBio = (): string => {
+        const bios = [
+          'Software Developer • Tech Enthusiast • Privacy Advocate',
+          'Digital Marketing Specialist | Content Creator',
+          'Photographer • Travel Enthusiast • Coffee Lover',
+          'Entrepreneur | Startup Founder | Innovation',
+          'Data Scientist • AI/ML Engineer • Open Source',
+          'UX/UI Designer • Creative Professional',
+          'Cybersecurity Expert • Ethical Hacker',
+          'Student • Learning Every Day • Future Ready'
+        ];
+        return bios[Math.floor(Math.random() * bios.length)];
+      };
 
       const knownBreaches = [
         'LinkedIn (2021)', 'Facebook (2019)', 'Equifax (2017)', 'Yahoo (2013-2014)', 

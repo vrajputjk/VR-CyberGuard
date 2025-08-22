@@ -38,11 +38,12 @@ export default function Dirb() {
   const { toast } = useToast();
 
   const commonWordlists = {
-    common: ['admin', 'administrator', 'login', 'uploads', 'images', 'js', 'css', 'api', 'backup', 'config', 'test', 'dev', 'old', 'tmp', 'wp-admin', 'phpmyadmin', 'cpanel', 'webmail', 'ftp', 'mail', 'email', 'portal', 'dashboard', 'panel'],
-    directories: ['admin', 'administrator', 'uploads', 'images', 'files', 'docs', 'backup', 'old', 'test', 'dev', 'api', 'assets', 'static', 'public', 'private', 'secure', 'protected', 'restricted', 'internal', 'staff', 'employee', 'member', 'user', 'client', 'customer'],
-    files: ['robots.txt', 'sitemap.xml', '.htaccess', 'config.php', 'admin.php', 'login.php', 'upload.php', 'backup.zip', 'database.sql', 'test.txt', 'readme.txt', 'changelog.txt', 'info.php', 'phpinfo.php', 'index.php', '.env', '.git', 'web.config', 'crossdomain.xml'],
-    sensitive: ['admin', 'administrator', 'login', 'backup', 'config', 'database', 'sql', 'env', 'git', 'svn', 'old', 'bak', 'tmp', 'secret', 'private', 'confidential', 'internal', 'restricted', 'password', 'passwords', 'credentials', 'keys', 'token', 'tokens', 'auth'],
-    penetration: ['admin', 'phpmyadmin', 'wp-admin', 'wp-login', 'cpanel', 'webmail', 'mail', 'email', 'ftp', 'ssh', 'telnet', 'mysql', 'mssql', 'oracle', 'postgresql', 'mongodb', 'redis', 'memcached', 'elasticsearch', 'kibana', 'grafana', 'jenkins', 'gitlab', 'github']
+    common: ['admin', 'administrator', 'login', 'uploads', 'images', 'js', 'css', 'api', 'backup', 'config', 'test', 'dev', 'old', 'tmp', 'wp-admin', 'phpmyadmin', 'cpanel', 'webmail', 'ftp', 'mail', 'email', 'portal', 'dashboard', 'panel', 'secure', 'private'],
+    directories: ['admin', 'administrator', 'uploads', 'images', 'files', 'docs', 'backup', 'old', 'test', 'dev', 'api', 'assets', 'static', 'public', 'private', 'secure', 'protected', 'restricted', 'internal', 'staff', 'employee', 'member', 'user', 'client', 'customer', 'vendor', 'partner'],
+    files: ['robots.txt', 'sitemap.xml', '.htaccess', 'config.php', 'admin.php', 'login.php', 'upload.php', 'backup.zip', 'database.sql', 'test.txt', 'readme.txt', 'changelog.txt', 'info.php', 'phpinfo.php', 'index.php', '.env', '.git', 'web.config', 'crossdomain.xml', 'backup.tar.gz', 'dump.sql', '.env.backup'],
+    sensitive: ['admin', 'administrator', 'login', 'backup', 'config', 'database', 'sql', 'env', 'git', 'svn', 'old', 'bak', 'tmp', 'secret', 'private', 'confidential', 'internal', 'restricted', 'password', 'passwords', 'credentials', 'keys', 'token', 'tokens', 'auth', 'session', 'temp', 'cache'],
+    penetration: ['admin', 'phpmyadmin', 'wp-admin', 'wp-login', 'cpanel', 'webmail', 'mail', 'email', 'ftp', 'ssh', 'telnet', 'mysql', 'mssql', 'oracle', 'postgresql', 'mongodb', 'redis', 'memcached', 'elasticsearch', 'kibana', 'grafana', 'jenkins', 'gitlab', 'github', 'jira', 'confluence', 'nexus', 'sonarqube'],
+    apis: ['api', 'v1', 'v2', 'v3', 'rest', 'graphql', 'swagger', 'docs', 'documentation', 'openapi', 'endpoints', 'json', 'xml', 'soap', 'wsdl', 'wadl']
   };
 
   const startDirectoryBruteforce = async () => {
@@ -97,19 +98,22 @@ export default function Dirb() {
         const word = wordlist[i];
         await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
 
-        // Simulate HTTP responses
-        const statusCodes = [200, 301, 302, 403, 404, 500];
+        // Simulate realistic HTTP responses based on path type
+        const isInterestingPath = ['admin', 'login', 'backup', 'config', 'database', 'env', 'git', 'api', 'private', 'secret'].some(s => word.includes(s));
+        const baseSuccessRate = isInterestingPath ? 0.25 : 0.15; // Higher chance for interesting paths
+        const statusCodes = isInterestingPath ? [200, 301, 302, 403, 401] : [200, 301, 302, 403, 404, 500];
         const randomStatus = statusCodes[Math.floor(Math.random() * statusCodes.length)];
         
-        // Only add "found" paths (not 404s)
-        if (randomStatus !== 404 && Math.random() > 0.7) {
+        // Only add "found" paths (not 404s) with realistic discovery rates
+        if (randomStatus !== 404 && Math.random() < baseSuccessRate) {
+          const isDirectory = !word.includes('.') && Math.random() > 0.3;
           const newPath: DirectoryResult = {
-            path: `/${word}`,
+            path: `/${word}${isDirectory ? '/' : ''}`,
             status: randomStatus,
-            size: `${Math.floor(Math.random() * 10000)}B`,
+            size: isDirectory ? '-' : `${Math.floor(Math.random() * 50000) + 100}B`,
             lastModified: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
-            type: Math.random() > 0.6 ? 'directory' : 'file',
-            interesting: ['admin', 'login', 'backup', 'config', 'database', 'env'].some(s => word.includes(s))
+            type: isDirectory ? 'directory' : 'file',
+            interesting: isInterestingPath
           };
 
           setResults(prev => prev ? {
@@ -221,11 +225,12 @@ export default function Dirb() {
                     value={selectedWordlist}
                     onChange={(e) => setSelectedWordlist(e.target.value)}
                   >
-                    <option value="common">Common Paths (24 entries)</option>
-                    <option value="directories">Directory Names (24 entries)</option>
-                    <option value="files">Common Files (20 entries)</option>
-                    <option value="sensitive">Sensitive Paths (25 entries)</option>
-                    <option value="penetration">Penetration Testing (25 entries)</option>
+                    <option value="common">Common Paths (26 entries)</option>
+                    <option value="directories">Directory Names (27 entries)</option>
+                    <option value="files">Common Files (23 entries)</option>
+                    <option value="sensitive">Sensitive Paths (28 entries)</option>
+                    <option value="penetration">Penetration Testing (28 entries)</option>
+                    <option value="apis">API Endpoints (16 entries)</option>
                   </select>
                 </div>
 
