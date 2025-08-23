@@ -32,8 +32,8 @@ export default function LinkObfuscator() {
       return;
     }
 
-    // Basic URL validation
-    let url = originalUrl;
+    // Enhanced URL validation and normalization
+    let url = originalUrl.trim();
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = 'https://' + url;
     }
@@ -42,94 +42,180 @@ export default function LinkObfuscator() {
       const urlObj = new URL(url);
       const obfuscations: ObfuscatedLink[] = [];
 
-      // 1. URL Encoding
-      const urlEncoded = encodeURIComponent(url);
+      // 1. Advanced URL Encoding (Double/Triple)
+      const doubleEncoded = encodeURIComponent(encodeURIComponent(url));
+      const tripleEncoded = encodeURIComponent(doubleEncoded);
       obfuscations.push({
-        method: 'URL Encoding',
+        method: 'Double URL Encoding',
         original: url,
-        obfuscated: urlEncoded,
-        explanation: 'Encodes the URL using percent-encoding. Often used to bypass simple URL filters.',
+        obfuscated: doubleEncoded,
+        explanation: 'Double-encoded URL that bypasses basic filters. Many WAFs miss this.',
+        riskLevel: 'high'
+      });
+
+      // 2. Hex Encoding
+      const hexEncoded = url.split('').map(char => '%' + char.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+      obfuscations.push({
+        method: 'Hex Encoding',
+        original: url,
+        obfuscated: hexEncoded,
+        explanation: 'Converts URL to hexadecimal representation. Often bypasses content filters.',
         riskLevel: 'medium'
       });
 
-      // 2. IP Address Conversion
-      try {
-        // Mock IP conversion (in real implementation, would resolve DNS)
-        const mockIP = '216.58.214.174'; // Google's IP as example
-        const ipUrl = url.replace(urlObj.hostname, mockIP);
+      // 3. Advanced IP Obfuscation (Multiple formats)
+      const ipFormats = [
+        '3627734950', // Decimal format
+        '0xd83ac7a6', // Hexadecimal format  
+        '0327.0116.0307.0246', // Octal format
+        '216.58.214.174' // Standard dotted
+      ];
+      
+      ipFormats.forEach((ipFormat, index) => {
+        const ipUrl = url.replace(urlObj.hostname, ipFormat);
         obfuscations.push({
-          method: 'IP Address',
+          method: `IP Format ${index + 1} (${['Decimal', 'Hex', 'Octal', 'Standard'][index]})`,
           original: url,
           obfuscated: ipUrl,
-          explanation: 'Replaces domain name with IP address. Hides the actual domain from casual inspection.',
+          explanation: `IP in ${['decimal', 'hexadecimal', 'octal', 'dotted'][index]} format. Hides domain completely.`,
           riskLevel: 'high'
         });
-      } catch (e) {
-        // Ignore IP conversion errors
-      }
+      });
 
-      // 3. Homograph Attack
-      const homographDomain = urlObj.hostname
-        .replace(/google/g, 'gοοgle') // Using Greek omicron
-        .replace(/microsoft/g, 'micrοsοft')
-        .replace(/amazon/g, 'amаzon') // Using Cyrillic 'a'
-        .replace(/paypal/g, 'pаypal');
-      
-      if (homographDomain !== urlObj.hostname) {
-        const homographUrl = url.replace(urlObj.hostname, homographDomain);
+      // 4. Enhanced Homograph Attacks (Multiple scripts)
+      const homographMappings = [
+        { from: 'google', to: 'gοοgle' }, // Greek omicron
+        { from: 'microsoft', to: 'micrοsοft' },
+        { from: 'amazon', to: 'amаzon' }, // Cyrillic 'a'
+        { from: 'paypal', to: 'pаypal' },
+        { from: 'apple', to: 'аpple' },
+        { from: 'facebook', to: 'fасebook' },
+        { from: 'twitter', to: 'twittеr' }, // Cyrillic 'e'
+        { from: 'github', to: 'githυb' }, // Greek upsilon
+        { from: 'linkedin', to: 'linkеdin' }
+      ];
+
+      homographMappings.forEach(mapping => {
+        if (urlObj.hostname.includes(mapping.from)) {
+          const homographDomain = urlObj.hostname.replace(mapping.from, mapping.to);
+          const homographUrl = url.replace(urlObj.hostname, homographDomain);
+          obfuscations.push({
+            method: `Homograph Attack (${mapping.from})`,
+            original: url,
+            obfuscated: homographUrl,
+            explanation: `Uses Cyrillic/Greek characters that look identical to Latin. Extremely deceptive.`,
+            riskLevel: 'high'
+          });
+        }
+      });
+
+      // 5. Advanced Subdomain Spoofing
+      const spoofDomains = [
+        `${urlObj.hostname}.evil-site.com`,
+        `secure-${urlObj.hostname}.phishing.net`,
+        `${urlObj.hostname}-verify.suspicious.org`,
+        `login.${urlObj.hostname}.fake-bank.co`,
+        `api.${urlObj.hostname}.malicious.io`
+      ];
+
+      spoofDomains.forEach((spoofDomain, index) => {
+        const spoofUrl = url.replace(urlObj.hostname, spoofDomain);
         obfuscations.push({
-          method: 'Homograph Attack',
+          method: `Subdomain Spoofing #${index + 1}`,
           original: url,
-          obfuscated: homographUrl,
-          explanation: 'Uses similar-looking characters from different alphabets. Very deceptive to users.',
+          obfuscated: spoofUrl,
+          explanation: 'Places legitimate domain as subdomain to trick users into trusting the URL.',
           riskLevel: 'high'
         });
-      }
+      });
 
-      // 4. Subdomain Obfuscation
-      const subdomainUrl = url.replace(urlObj.hostname, `${urlObj.hostname}.suspicious-site.com`);
+      // 6. Multiple URL Shortener Simulations
+      const shorteners = [
+        { service: 'bit.ly', pattern: 'https://bit.ly/' },
+        { service: 'tinyurl.com', pattern: 'https://tinyurl.com/' },
+        { service: 't.co', pattern: 'https://t.co/' },
+        { service: 'goo.gl', pattern: 'https://goo.gl/' },
+        { service: 'ow.ly', pattern: 'https://ow.ly/' }
+      ];
+
+      shorteners.forEach(shortener => {
+        const shortCode = Math.random().toString(36).substr(2, 8);
+        const shortUrl = shortener.pattern + shortCode;
+        obfuscations.push({
+          method: `URL Shortener (${shortener.service})`,
+          original: url,
+          obfuscated: shortUrl,
+          explanation: `${shortener.service} short URL hiding actual destination. Very common in phishing.`,
+          riskLevel: 'medium'
+        });
+      });
+
+      // 7. Advanced Redirect Techniques
+      const redirectMethods = [
+        `javascript:window.location='${url}'`,
+        `data:text/html,<meta http-equiv="refresh" content="0;url=${url}">`,
+        `data:text/html,<script>location.href='${url}'</script>`,
+        `https://redirect-service.com/go?url=${encodeURIComponent(url)}`,
+        `https://proxy-tunnel.net/browse.php?u=${btoa(url)}`
+      ];
+
+      redirectMethods.forEach((redirect, index) => {
+        const methods = ['JavaScript', 'Meta Refresh', 'Script Redirect', 'Redirect Service', 'Proxy Tunnel'];
+        obfuscations.push({
+          method: `${methods[index]} Redirect`,
+          original: url,
+          obfuscated: redirect,
+          explanation: `Uses ${methods[index].toLowerCase()} to redirect to target. Can bypass many security filters.`,
+          riskLevel: 'high'
+        });
+      });
+
+      // 8. Unicode Normalization Attacks
+      const unicodeTricks = [
+        url.replace(/\./g, '\u2024'), // Unicode bullet
+        url.replace(/\//g, '\u2215'), // Division slash
+        url.replace(/-/g, '\u2010'), // Hyphen
+        url.replace(/:/g, '\uFF1A'), // Fullwidth colon
+        url.replace(/www/g, 'ⱳⱳⱳ') // Special w characters
+      ];
+
+      unicodeTricks.forEach((unicodeUrl, index) => {
+        if (unicodeUrl !== url) {
+          obfuscations.push({
+            method: `Unicode Confusion #${index + 1}`,
+            original: url,
+            obfuscated: unicodeUrl,
+            explanation: 'Uses Unicode characters that appear identical but have different codes.',
+            riskLevel: 'medium'
+          });
+        }
+      });
+
+      // 9. Base64 and Advanced Encoding
+      const base64Url = btoa(url);
+      const base64Redirect = `data:text/html,<script>location.href=atob('${base64Url}')</script>`;
       obfuscations.push({
-        method: 'Subdomain Spoofing',
+        method: 'Base64 Encoding',
         original: url,
-        obfuscated: subdomainUrl,
-        explanation: 'Places legitimate domain as subdomain of malicious domain. Tricks users into trusting the URL.',
+        obfuscated: base64Redirect,
+        explanation: 'URL encoded in Base64 within JavaScript. Requires decoding to see destination.',
         riskLevel: 'high'
       });
 
-      // 5. URL Shortener Simulation
-      const shortUrl = `https://bit.ly/${Math.random().toString(36).substr(2, 8)}`;
+      // 10. IDN (Internationalized Domain Name) Spoofing
+      const idnSpoof = url.replace(urlObj.hostname, 'xn--e1afmkfd.xn--p1ai'); // Example Punycode
       obfuscations.push({
-        method: 'URL Shortener',
+        method: 'IDN/Punycode Spoofing',
         original: url,
-        obfuscated: shortUrl,
-        explanation: 'Hides the actual destination behind a short URL. Commonly used in phishing campaigns.',
-        riskLevel: 'medium'
-      });
-
-      // 6. Data URI Scheme
-      const dataUri = `data:text/html,<script>window.location='${url}'</script>`;
-      obfuscations.push({
-        method: 'Data URI Redirect',
-        original: url,
-        obfuscated: dataUri,
-        explanation: 'Uses data URI to create an HTML redirect. Can bypass some security filters.',
+        obfuscated: idnSpoof,
+        explanation: 'Uses Internationalized Domain Names to create confusing domains that look legitimate.',
         riskLevel: 'high'
-      });
-
-      // 7. Unicode Normalization
-      const unicodeUrl = url.replace(/\./g, '\u2024'); // Unicode bullet point
-      obfuscations.push({
-        method: 'Unicode Confusion',
-        original: url,
-        obfuscated: unicodeUrl,
-        explanation: 'Uses Unicode characters that look like normal punctuation but are different.',
-        riskLevel: 'medium'
       });
 
       setResults(obfuscations);
       toast({
-        title: "Obfuscation Complete",
-        description: `Generated ${obfuscations.length} obfuscated variants`,
+        title: "Advanced Obfuscation Complete",
+        description: `Generated ${obfuscations.length} sophisticated attack variants`,
       });
     } catch (error) {
       toast({
