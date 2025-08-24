@@ -46,6 +46,30 @@ export default function Encryption() {
             return char;
           }).join('');
           break;
+        case 'vigenere':
+          const keyStr = key.toUpperCase() || 'KEY';
+          let keyIndex = 0;
+          encrypted = plaintext.split('').map(char => {
+            if (char.match(/[a-z]/i)) {
+              const code = char.charCodeAt(0);
+              const base = code >= 65 && code <= 90 ? 65 : 97;
+              const keyShift = keyStr.charCodeAt(keyIndex % keyStr.length) - 65;
+              keyIndex++;
+              return String.fromCharCode(((code - base + keyShift) % 26) + base);
+            }
+            return char;
+          }).join('');
+          break;
+        case 'atbash':
+          encrypted = plaintext.split('').map(char => {
+            if (char.match(/[a-z]/i)) {
+              const code = char.charCodeAt(0);
+              const base = code >= 65 && code <= 90 ? 65 : 97;
+              return String.fromCharCode((25 - (code - base)) + base);
+            }
+            return char;
+          }).join('');
+          break;
         case 'reverse':
           encrypted = plaintext.split('').reverse().join('');
           break;
@@ -58,6 +82,11 @@ export default function Encryption() {
           encrypted = plaintext.replace(/[a-zA-Z]/g, char => {
             const start = char <= 'Z' ? 65 : 97;
             return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
+          });
+          break;
+        case 'rot47':
+          encrypted = plaintext.replace(/[!-~]/g, char => {
+            return String.fromCharCode(33 + ((char.charCodeAt(0) - 33 + 47) % 94));
           });
           break;
         case 'binary':
@@ -121,6 +150,30 @@ export default function Encryption() {
             return char;
           }).join('');
           break;
+        case 'vigenere':
+          const keyStr = key.toUpperCase() || 'KEY';
+          let keyIndex = 0;
+          decrypted = ciphertext.split('').map(char => {
+            if (char.match(/[a-z]/i)) {
+              const code = char.charCodeAt(0);
+              const base = code >= 65 && code <= 90 ? 65 : 97;
+              const keyShift = keyStr.charCodeAt(keyIndex % keyStr.length) - 65;
+              keyIndex++;
+              return String.fromCharCode(((code - base - keyShift + 26) % 26) + base);
+            }
+            return char;
+          }).join('');
+          break;
+        case 'atbash':
+          decrypted = ciphertext.split('').map(char => {
+            if (char.match(/[a-z]/i)) {
+              const code = char.charCodeAt(0);
+              const base = code >= 65 && code <= 90 ? 65 : 97;
+              return String.fromCharCode((25 - (code - base)) + base);
+            }
+            return char;
+          }).join('');
+          break;
         case 'reverse':
           decrypted = ciphertext.split('').reverse().join('');
           break;
@@ -133,6 +186,11 @@ export default function Encryption() {
           decrypted = ciphertext.replace(/[a-zA-Z]/g, char => {
             const start = char <= 'Z' ? 65 : 97;
             return String.fromCharCode(((char.charCodeAt(0) - start + 13) % 26) + start);
+          });
+          break;
+        case 'rot47':
+          decrypted = ciphertext.replace(/[!-~]/g, char => {
+            return String.fromCharCode(33 + ((char.charCodeAt(0) - 33 - 47 + 94) % 94));
           });
           break;
         case 'binary':
@@ -199,8 +257,14 @@ export default function Encryption() {
   const generateRandomKey = () => {
     if (method === 'caesar') {
       setKey((Math.floor(Math.random() * 25) + 1).toString());
+    } else if (method === 'vigenere') {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const randomKey = Array.from({ length: Math.floor(Math.random() * 8) + 5 }, () => 
+        chars.charAt(Math.floor(Math.random() * chars.length))
+      ).join('');
+      setKey(randomKey);
     } else {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
       const randomKey = Array.from({ length: 16 }, () => 
         chars.charAt(Math.floor(Math.random() * chars.length))
       ).join('');
@@ -245,26 +309,29 @@ export default function Encryption() {
                     <SelectContent>
                       <SelectItem value="base64">Base64 Encoding</SelectItem>
                       <SelectItem value="caesar">Caesar Cipher</SelectItem>
+                      <SelectItem value="vigenere">Vigenere Cipher</SelectItem>
+                      <SelectItem value="atbash">Atbash Cipher</SelectItem>
                       <SelectItem value="reverse">Reverse Text</SelectItem>
                       <SelectItem value="hex">Hexadecimal</SelectItem>
                       <SelectItem value="rot13">ROT13 Cipher</SelectItem>
+                      <SelectItem value="rot47">ROT47 Cipher</SelectItem>
                       <SelectItem value="binary">Binary Encoding</SelectItem>
                       <SelectItem value="morse">Morse Code</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {(method === 'caesar' || method === 'aes') && (
+                {(method === 'caesar' || method === 'vigenere') && (
                   <div>
                     <Label htmlFor="key">
-                      {method === 'caesar' ? 'Shift Value' : 'Encryption Key'}
+                      {method === 'caesar' ? 'Shift Value' : method === 'vigenere' ? 'Key Word' : 'Encryption Key'}
                     </Label>
                     <div className="flex gap-2">
                       <Input
                         id="key"
                         value={key}
                         onChange={(e) => setKey(e.target.value)}
-                        placeholder={method === 'caesar' ? '3' : 'Enter key...'}
+                        placeholder={method === 'caesar' ? '3' : method === 'vigenere' ? 'KEYWORD' : 'Enter key...'}
                         type={method === 'caesar' ? 'number' : 'text'}
                       />
                       <Button variant="outline" onClick={generateRandomKey}>
