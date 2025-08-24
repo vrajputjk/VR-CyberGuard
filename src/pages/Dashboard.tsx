@@ -108,94 +108,60 @@ const tools = [
 export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/20">
-                <Shield className="w-8 h-8 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-primary">VRCyber Guard</h1>
-                <p className="text-sm text-muted-foreground">Your Cybersecurity Arsenal</p>
-              </div>
+      <div className="container mx-auto px-6 py-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">Cybersecurity Arsenal</h1>
+              <p className="text-muted-foreground">
+                Professional-grade security tools for penetration testing and security research.
+              </p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <span>Secure Connection</span>
-              </div>
-            </div>
+            <IPDisplay />
           </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
-        {/* Welcome Section */}
         <div className="text-center mb-8">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-            Stay Safe Online
+          <h2 className="text-2xl font-bold text-primary mb-2">
+            Available Security Tools
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Access professional cybersecurity tools to protect yourself and understand digital threats. 
-            All activities are logged with your IP and timestamp for transparency.
+          <p className="text-muted-foreground">
+            Click on any tool below to launch it and begin your security assessment.
           </p>
-        </div>
-
-        {/* IP Display */}
-        <div className="mb-8">
-          <IPDisplay />
         </div>
 
         {/* Tools Grid */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
-            <Network className="w-6 h-6 text-primary" />
-            Security Tools
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tools.map((tool, index) => (
-              <ToolCard
-                key={index}
-                title={tool.title}
-                description={tool.description}
-                category={tool.category}
-                icon={tool.icon}
-                href={tool.href}
-                riskLevel={tool.riskLevel}
-                isNew={tool.isNew}
-              />
-            ))}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+          {tools.map((tool, index) => (
+            <ToolCard key={index} {...tool} />
+          ))}
         </div>
 
         {/* Disclaimer */}
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 text-center">
-          <AlertTriangle className="w-8 h-8 text-destructive mx-auto mb-3" />
-          <h4 className="text-lg font-semibold text-destructive mb-2">Educational & Research Purposes Only</h4>
-          <p className="text-sm text-muted-foreground">
-            These tools are designed for educational purposes, security research, and authorized testing only. 
-            Users are responsible for ensuring compliance with all applicable laws and regulations. 
-            Unauthorized use against systems you do not own is prohibited.
-          </p>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-card/30 mt-16">
-        <div className="container mx-auto px-6 py-8">
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              © 2024 VRCyber Guard. Built for cybersecurity education and awareness.
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              All tool usage is logged with IP addresses and timestamps for security and transparency.
-            </p>
+        <div className="bg-gradient-to-r from-destructive/10 to-yellow-500/10 border border-destructive/20 rounded-lg p-6">
+          <div className="flex items-start gap-4">
+            <AlertTriangle className="w-8 h-8 text-destructive flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="text-lg font-semibold text-destructive mb-2">Important Disclaimer</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                These tools are designed for educational purposes, authorized penetration testing, and security research only. 
+                Users are responsible for ensuring they have proper authorization before testing any systems they do not own.
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Only use on systems you own or have explicit written permission to test</li>
+                <li>• Unauthorized access to computer systems is illegal in most jurisdictions</li>
+                <li>• Always follow responsible disclosure practices for any vulnerabilities found</li>
+                <li>• Consider the impact of your testing on system availability and performance</li>
+              </ul>
+            </div>
           </div>
         </div>
-      </footer>
+
+        {/* Footer */}
+        <footer className="mt-8 pt-6 border-t border-border text-center text-sm text-muted-foreground">
+          <p>&copy; 2024 VRCyber Guard. Educational use only. Activity logged for security purposes.</p>
+        </footer>
+      </div>
     </div>
   );
 }

@@ -44,11 +44,28 @@ export default function PhishingDetector() {
       const urlLower = url.toLowerCase();
       
       // URL shorteners (higher risk)
-      const shorteners = ['bit.ly', 'tinyurl', 't.co', 'goo.gl', 'ow.ly', 'short.link', 'tiny.cc'];
+      const shorteners = ['bit.ly', 'tinyurl', 't.co', 'goo.gl', 'ow.ly', 'short.link', 'tiny.cc', 'is.gd', 'buff.ly', 'rebrand.ly', 'cutt.ly'];
       if (shorteners.some(s => urlLower.includes(s))) {
         indicators.push('URL shortener detected - hides true destination');
         score += 35;
       }
+      
+      // Known phishing patterns and typosquatting
+      const legitimateDomains = ['google', 'facebook', 'microsoft', 'apple', 'amazon', 'paypal', 'netflix', 'spotify', 'dropbox', 'github'];
+      const suspiciousVariations = ['g00gle', 'facebbok', 'micr0soft', 'app1e', 'amaz0n', 'payp4l', 'netf1ix', 'sp0tify', 'dr0pbox', 'githvb'];
+      
+      if (suspiciousVariations.some(variation => urlLower.includes(variation))) {
+        indicators.push('Possible typosquatting - mimics legitimate domain');
+        score += 60;
+      }
+      
+      // Check for brand impersonation with common misspellings
+      legitimateDomains.forEach(domain => {
+        if (urlLower.includes(domain) && !urlLower.includes(`${domain}.com`) && !urlLower.includes(`${domain}.org`)) {
+          indicators.push(`Possible brand impersonation of ${domain}`);
+          score += 45;
+        }
+      });
       
       // Suspicious keywords
       const suspiciousKeywords = ['phishing', 'malware', 'virus', 'hack', 'crack', 'trojan', 'ransomware'];
@@ -160,11 +177,20 @@ export default function PhishingDetector() {
       let score = 0;
       
       // Check for urgent language
-      const urgentPhrases = ['urgent', 'immediate', 'expire', 'suspend', 'verify now', 'click here', 'act now'];
+      const urgentPhrases = ['urgent', 'immediate', 'expire', 'suspend', 'verify now', 'click here', 'act now', 'limited time', 'expires today', 'verify immediately', 'account will be closed', 'suspended', 'frozen', 'locked'];
       urgentPhrases.forEach(phrase => {
         if (textContent.toLowerCase().includes(phrase)) {
           indicators.push(`Urgent language: "${phrase}"`);
           score += 15;
+        }
+      });
+      
+      // Check for personal information requests
+      const personalInfoRequests = ['social security', 'ssn', 'credit card', 'bank account', 'routing number', 'pin', 'mother\'s maiden name', 'date of birth', 'driver\'s license'];
+      personalInfoRequests.forEach(request => {
+        if (textContent.toLowerCase().includes(request)) {
+          indicators.push(`Requests sensitive information: "${request}"`);
+          score += 25;
         }
       });
       
@@ -184,11 +210,20 @@ export default function PhishingDetector() {
       }
 
       // Check for spelling/grammar issues (simplified)
-      const commonErrors = ['recieve', 'seperate', 'occured', 'priviledge'];
+      const commonErrors = ['recieve', 'seperate', 'occured', 'priviledge', 'definately', 'loose' /* for lose */, 'there account' /* their */, 'you\'re account' /* your */, 'affect' /* effect */, 'alot'];
       commonErrors.forEach(error => {
         if (textContent.toLowerCase().includes(error)) {
           indicators.push('Spelling/grammar errors detected');
           score += 10;
+        }
+      });
+      
+      // Check for reward/prize schemes
+      const rewardSchemes = ['you have won', 'congratulations', 'claim your prize', 'free gift', 'winner', 'lottery', '$1000', 'cash prize', 'inheritance'];
+      rewardSchemes.forEach(scheme => {
+        if (textContent.toLowerCase().includes(scheme)) {
+          indicators.push(`Possible reward scam: "${scheme}"`);
+          score += 30;
         }
       });
 

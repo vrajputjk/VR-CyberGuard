@@ -38,12 +38,12 @@ export default function Dirb() {
   const { toast } = useToast();
 
   const commonWordlists = {
-    common: ['admin', 'administrator', 'login', 'uploads', 'images', 'js', 'css', 'api', 'backup', 'config', 'test', 'dev', 'old', 'tmp', 'wp-admin', 'phpmyadmin', 'cpanel', 'webmail', 'ftp', 'mail', 'email', 'portal', 'dashboard', 'panel', 'secure', 'private'],
-    directories: ['admin', 'administrator', 'uploads', 'images', 'files', 'docs', 'backup', 'old', 'test', 'dev', 'api', 'assets', 'static', 'public', 'private', 'secure', 'protected', 'restricted', 'internal', 'staff', 'employee', 'member', 'user', 'client', 'customer', 'vendor', 'partner'],
-    files: ['robots.txt', 'sitemap.xml', '.htaccess', 'config.php', 'admin.php', 'login.php', 'upload.php', 'backup.zip', 'database.sql', 'test.txt', 'readme.txt', 'changelog.txt', 'info.php', 'phpinfo.php', 'index.php', '.env', '.git', 'web.config', 'crossdomain.xml', 'backup.tar.gz', 'dump.sql', '.env.backup'],
-    sensitive: ['admin', 'administrator', 'login', 'backup', 'config', 'database', 'sql', 'env', 'git', 'svn', 'old', 'bak', 'tmp', 'secret', 'private', 'confidential', 'internal', 'restricted', 'password', 'passwords', 'credentials', 'keys', 'token', 'tokens', 'auth', 'session', 'temp', 'cache'],
-    penetration: ['admin', 'phpmyadmin', 'wp-admin', 'wp-login', 'cpanel', 'webmail', 'mail', 'email', 'ftp', 'ssh', 'telnet', 'mysql', 'mssql', 'oracle', 'postgresql', 'mongodb', 'redis', 'memcached', 'elasticsearch', 'kibana', 'grafana', 'jenkins', 'gitlab', 'github', 'jira', 'confluence', 'nexus', 'sonarqube'],
-    apis: ['api', 'v1', 'v2', 'v3', 'rest', 'graphql', 'swagger', 'docs', 'documentation', 'openapi', 'endpoints', 'json', 'xml', 'soap', 'wsdl', 'wadl']
+    common: ['admin', 'administrator', 'login', 'uploads', 'images', 'js', 'css', 'api', 'backup', 'config', 'test', 'dev', 'old', 'tmp', 'wp-admin', 'phpmyadmin', 'cpanel', 'webmail', 'ftp', 'mail', 'email', 'portal', 'dashboard', 'panel', 'secure', 'private', 'assets', 'scripts', 'styles', 'data', 'files', 'docs', 'downloads', 'media', 'static', 'public'],
+    directories: ['admin', 'administrator', 'uploads', 'images', 'files', 'docs', 'backup', 'old', 'test', 'dev', 'api', 'assets', 'static', 'public', 'private', 'secure', 'protected', 'restricted', 'internal', 'staff', 'employee', 'member', 'user', 'client', 'customer', 'vendor', 'partner', 'app', 'application', 'src', 'source', 'lib', 'libs', 'include', 'includes', 'templates', 'views', 'controllers', 'models'],
+    files: ['robots.txt', 'sitemap.xml', '.htaccess', 'config.php', 'admin.php', 'login.php', 'upload.php', 'backup.zip', 'database.sql', 'test.txt', 'readme.txt', 'changelog.txt', 'info.php', 'phpinfo.php', 'index.php', '.env', '.git', 'web.config', 'crossdomain.xml', 'backup.tar.gz', 'dump.sql', '.env.backup', '.env.local', '.env.production', 'composer.json', 'package.json', 'yarn.lock', 'Dockerfile', '.dockerignore', '.gitignore', 'favicon.ico'],
+    sensitive: ['admin', 'administrator', 'login', 'backup', 'config', 'database', 'sql', 'env', 'git', 'svn', 'old', 'bak', 'tmp', 'secret', 'private', 'confidential', 'internal', 'restricted', 'password', 'passwords', 'credentials', 'keys', 'token', 'tokens', 'auth', 'session', 'temp', 'cache', 'logs', 'log', 'debug', 'error', 'access', 'security', 'ssl', 'cert', 'certificate'],
+    penetration: ['admin', 'phpmyadmin', 'wp-admin', 'wp-login', 'cpanel', 'webmail', 'mail', 'email', 'ftp', 'ssh', 'telnet', 'mysql', 'mssql', 'oracle', 'postgresql', 'mongodb', 'redis', 'memcached', 'elasticsearch', 'kibana', 'grafana', 'jenkins', 'gitlab', 'github', 'jira', 'confluence', 'nexus', 'sonarqube', 'splunk', 'nagios', 'zabbix', 'prometheus', 'consul', 'vault', 'adminer'],
+    apis: ['api', 'v1', 'v2', 'v3', 'v4', 'rest', 'graphql', 'swagger', 'docs', 'documentation', 'openapi', 'endpoints', 'json', 'xml', 'soap', 'wsdl', 'wadl', 'oauth', 'auth', 'token', 'login', 'users', 'user', 'profile', 'admin', 'dashboard', 'health', 'status', 'metrics']
   };
 
   const startDirectoryBruteforce = async () => {
@@ -225,12 +225,12 @@ export default function Dirb() {
                     value={selectedWordlist}
                     onChange={(e) => setSelectedWordlist(e.target.value)}
                   >
-                    <option value="common">Common Paths (26 entries)</option>
-                    <option value="directories">Directory Names (27 entries)</option>
-                    <option value="files">Common Files (23 entries)</option>
-                    <option value="sensitive">Sensitive Paths (28 entries)</option>
-                    <option value="penetration">Penetration Testing (28 entries)</option>
-                    <option value="apis">API Endpoints (16 entries)</option>
+                    <option value="common">Common Paths ({commonWordlists.common.length} entries)</option>
+                    <option value="directories">Directory Names ({commonWordlists.directories.length} entries)</option>
+                    <option value="files">Common Files ({commonWordlists.files.length} entries)</option>
+                    <option value="sensitive">Sensitive Paths ({commonWordlists.sensitive.length} entries)</option>
+                    <option value="penetration">Penetration Testing ({commonWordlists.penetration.length} entries)</option>
+                    <option value="apis">API Endpoints ({commonWordlists.apis.length} entries)</option>
                   </select>
                 </div>
 

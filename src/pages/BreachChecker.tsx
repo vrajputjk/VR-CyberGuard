@@ -98,6 +98,48 @@ export default function BreachChecker() {
           compromisedData: ["Email addresses", "Hashed passwords", "Names"],
           description: "68 million Dropbox accounts compromised through third-party service",
           verified: true
+        },
+        {
+          name: "Twitter Data Breach",
+          date: "2022-08-24",
+          compromisedData: ["Email addresses", "Phone numbers", "Usernames", "Followers data"],
+          description: "5.4 million Twitter accounts exposed through API vulnerability",
+          verified: true
+        },
+        {
+          name: "LastPass Security Incident",
+          date: "2022-12-22",
+          compromisedData: ["Encrypted password vaults", "Vault metadata", "URLs", "Usernames"],
+          description: "LastPass encrypted password vaults stolen affecting millions of users",
+          verified: true
+        },
+        {
+          name: "Uber Data Breach",
+          date: "2022-09-15",
+          compromisedData: ["Internal tools access", "Employee credentials", "System data"],
+          description: "Social engineering attack compromised multiple Uber internal systems",
+          verified: true
+        },
+        {
+          name: "Medibank Cyber Attack",
+          date: "2022-10-13",
+          compromisedData: ["Health records", "Personal details", "Medicare numbers", "Health claims"],
+          description: "Australian health insurer Medibank customer data stolen by ransomware group",
+          verified: true
+        },
+        {
+          name: "Toyota Data Leak",
+          date: "2022-05-12",
+          compromisedData: ["Customer data", "Vehicle information", "Email addresses", "Phone numbers"],
+          description: "Toyota source code and customer data exposed for nearly 5 years",
+          verified: true
+        },
+        {
+          name: "Revolut Data Incident",
+          date: "2022-09-11",
+          compromisedData: ["Names", "Email addresses", "Phone numbers", "Transaction data"],
+          description: "Over 50,000 Revolut customers affected by data breach",
+          verified: true
         }
       ];
 
