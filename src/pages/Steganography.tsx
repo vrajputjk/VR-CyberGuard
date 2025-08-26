@@ -73,10 +73,16 @@ export default function Steganography() {
         return;
       }
 
-      // Enhanced analysis result with accurate calculations
-      const bitsPerPixel = encryptionMethod === 'advanced' ? 3 : 1; // Advanced uses all RGB channels
-      const effectiveCapacity = (totalPixels * bitsPerPixel) / 8; // Convert to bytes
+      // Enhanced analysis result with more accurate steganographic calculations
+      const bitsPerPixel = encryptionMethod === 'advanced' ? 2 : 1; // Advanced: 2 LSB bits per channel
+      const channelsUsed = encryptionMethod === 'advanced' ? 3 : 1; // RGB vs Red only
+      const effectiveCapacity = (totalPixels * bitsPerPixel * channelsUsed) / 8; // Convert to bytes
       const utilizationRate = ((totalRequired / effectiveCapacity) * 100);
+      
+      // Calculate steganographic detection resistance
+      const detectionResistance = encryptionMethod === 'advanced' && passphrase.trim() ? 'Very High' : 
+                                  encryptionMethod === 'advanced' ? 'High' : 
+                                  passphrase.trim() ? 'Medium' : 'Low';
       
       const analysis = {
         originalFile: hideFile.name,

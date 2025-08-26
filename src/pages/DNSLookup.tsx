@@ -73,25 +73,35 @@ export default function DNSLookup() {
       // Simulate comprehensive DNS lookup with realistic data
       await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Generate realistic IP addresses based on hosting providers and CDNs
+      // Enhanced realistic IP generation with proper provider ranges
       const generateRealisticIPs = () => {
         const providers = [
-          // Cloudflare
+          // Cloudflare (Real ranges)
           () => `104.${16 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
           () => `172.${64 + Math.floor(Math.random() * 32)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
-          // AWS
+          () => `173.245.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // AWS (Real EC2 ranges)
           () => `52.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
           () => `54.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
-          // Google Cloud
+          () => `18.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Google Cloud (Real ranges)
           () => `34.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
           () => `35.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
-          // Microsoft Azure
+          () => `104.196.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Microsoft Azure (Real ranges)
           () => `13.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
           () => `20.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
-          // DigitalOcean
+          () => `40.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // DigitalOcean (Real ranges)
           () => `138.${68 + Math.floor(Math.random() * 32)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
-          // Linode
-          () => `172.${104 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`
+          () => `159.89.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Linode (Real ranges)
+          () => `172.${104 + Math.floor(Math.random() * 16)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          () => `45.79.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // Vultr
+          () => `207.246.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+          // OVH
+          () => `51.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`
         ];
         return providers[Math.floor(Math.random() * providers.length)]();
       };
@@ -122,10 +132,13 @@ export default function DNSLookup() {
           ],
           CNAME: [],
           TXT: [
-            { type: 'TXT', value: 'v=spf1 include:_spf.google.com include:mailgun.org ~all', ttl: 3600 },
+            { type: 'TXT', value: 'v=spf1 include:_spf.google.com include:mailgun.org include:amazonses.com ~all', ttl: 3600 },
             { type: 'TXT', value: `google-site-verification=${Math.random().toString(36).substr(2, 43)}`, ttl: 3600 },
-            { type: 'TXT', value: `v=DMARC1; p=quarantine; rua=mailto:dmarc@${domain}`, ttl: 3600 },
-            ...(Math.random() > 0.5 ? [{ type: 'TXT', value: `_dnsauth.${domain}=${Math.random().toString(36).substr(2, 32)}`, ttl: 300 }] : [])
+            { type: 'TXT', value: `v=DMARC1; p=quarantine; rua=mailto:dmarc-reports@${domain}; ruf=mailto:dmarc-failures@${domain}; fo=1`, ttl: 3600 },
+            { type: 'TXT', value: `v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC${Math.random().toString(36).substr(2, 30)}...`, ttl: 3600 },
+            ...(Math.random() > 0.3 ? [{ type: 'TXT', value: `_dnsauth.${domain}=${Math.random().toString(36).substr(2, 32)}`, ttl: 300 }] : []),
+            ...(Math.random() > 0.6 ? [{ type: 'TXT', value: `keybase-site-verification=${Math.random().toString(36).substr(2, 25)}`, ttl: 3600 }] : []),
+            ...(Math.random() > 0.7 ? [{ type: 'TXT', value: 'atlassian-domain-verification=5YjTmWmjI92ewqkx2oXmBaD60Td9zWon9r6eakvHX6B77zzkFQto8PQ9QsKnbf4I', ttl: 3600 }] : [])
           ]
         }
       };

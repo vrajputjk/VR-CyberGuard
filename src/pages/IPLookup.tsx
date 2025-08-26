@@ -109,12 +109,20 @@ export default function IPLookup() {
     const locations = [
       { city: 'New York', region: 'New York', country: 'United States', code: 'US', timezone: 'America/New_York' },
       { city: 'Los Angeles', region: 'California', country: 'United States', code: 'US', timezone: 'America/Los_Angeles' },
+      { city: 'Chicago', region: 'Illinois', country: 'United States', code: 'US', timezone: 'America/Chicago' },
       { city: 'London', region: 'England', country: 'United Kingdom', code: 'GB', timezone: 'Europe/London' },
+      { city: 'Manchester', region: 'England', country: 'United Kingdom', code: 'GB', timezone: 'Europe/London' },
+      { city: 'Frankfurt', region: 'Hesse', country: 'Germany', code: 'DE', timezone: 'Europe/Berlin' },
+      { city: 'Amsterdam', region: 'North Holland', country: 'Netherlands', code: 'NL', timezone: 'Europe/Amsterdam' },
+      { city: 'Paris', region: 'Île-de-France', country: 'France', code: 'FR', timezone: 'Europe/Paris' },
       { city: 'Tokyo', region: 'Tokyo', country: 'Japan', code: 'JP', timezone: 'Asia/Tokyo' },
+      { city: 'Singapore', region: 'Singapore', country: 'Singapore', code: 'SG', timezone: 'Asia/Singapore' },
       { city: 'Sydney', region: 'New South Wales', country: 'Australia', code: 'AU', timezone: 'Australia/Sydney' },
       { city: 'Toronto', region: 'Ontario', country: 'Canada', code: 'CA', timezone: 'America/Toronto' },
-      { city: 'Berlin', region: 'Berlin', country: 'Germany', code: 'DE', timezone: 'Europe/Berlin' },
-      { city: 'Mumbai', region: 'Maharashtra', country: 'India', code: 'IN', timezone: 'Asia/Kolkata' }
+      { city: 'São Paulo', region: 'São Paulo', country: 'Brazil', code: 'BR', timezone: 'America/Sao_Paulo' },
+      { city: 'Mumbai', region: 'Maharashtra', country: 'India', code: 'IN', timezone: 'Asia/Kolkata' },
+      { city: 'Seoul', region: 'Seoul', country: 'South Korea', code: 'KR', timezone: 'Asia/Seoul' },
+      { city: 'Moscow', region: 'Moscow', country: 'Russia', code: 'RU', timezone: 'Europe/Moscow' }
     ];
     
     const isps = [

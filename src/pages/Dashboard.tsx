@@ -121,20 +121,43 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-primary mb-2">
-            Available Security Tools
-          </h2>
-          <p className="text-muted-foreground">
-            Click on any tool below to launch it and begin your security assessment.
-          </p>
-        </div>
+        {/* Tool Categories */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {/* Information Gathering */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2">
+              Information Gathering
+            </h2>
+            <div className="space-y-4">
+              {tools.filter(tool => ['utilities', 'awareness', 'recon'].includes(tool.category)).map((tool, index) => (
+                <ToolCard key={index} {...tool} />
+              ))}
+            </div>
+          </div>
 
-        {/* Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-          {tools.map((tool, index) => (
-            <ToolCard key={index} {...tool} />
-          ))}
+          {/* Vulnerability Assessment */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2">
+              Vulnerability Assessment
+            </h2>
+            <div className="space-y-4">
+              {tools.filter(tool => tool.category === 'scanning').map((tool, index) => (
+                <ToolCard key={index} {...tool} />
+              ))}
+            </div>
+          </div>
+
+          {/* Security Analysis */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2">
+              Security & Cryptography
+            </h2>
+            <div className="space-y-4">
+              {tools.filter(tool => tool.category === 'encryption').map((tool, index) => (
+                <ToolCard key={index} {...tool} />
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Disclaimer */}
