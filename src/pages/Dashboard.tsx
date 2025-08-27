@@ -121,14 +121,15 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Tool Categories */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        {/* Tool Categories - Mobile Optimized Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Information Gathering */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2">
+            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2 flex items-center gap-2">
+              <Search className="w-5 h-5" />
               Information Gathering
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {tools.filter(tool => ['utilities', 'awareness', 'recon'].includes(tool.category)).map((tool, index) => (
                 <ToolCard key={index} {...tool} />
               ))}
@@ -137,10 +138,11 @@ export default function Dashboard() {
 
           {/* Vulnerability Assessment */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2">
+            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2 flex items-center gap-2">
+              <Shield className="w-5 h-5" />
               Vulnerability Assessment
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {tools.filter(tool => tool.category === 'scanning').map((tool, index) => (
                 <ToolCard key={index} {...tool} />
               ))}
@@ -149,10 +151,11 @@ export default function Dashboard() {
 
           {/* Security Analysis */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2">
+            <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2 flex items-center gap-2">
+              <Lock className="w-5 h-5" />
               Security & Cryptography
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {tools.filter(tool => tool.category === 'encryption').map((tool, index) => (
                 <ToolCard key={index} {...tool} />
               ))}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Shield, 
   Search, 
@@ -13,7 +13,9 @@ import {
   Bug,
   Home,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  Menu,
+  X
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -26,8 +28,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const toolCategories = [
   {
@@ -72,6 +76,18 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const { setOpen } = useSidebar();
+  const { toast } = useToast();
+
+  // Auto-expand group containing active tool
+  useEffect(() => {
+    const activeCategory = toolCategories.find(category =>
+      category.tools.some(tool => tool.url === currentPath)
+    );
+    if (activeCategory) {
+      setExpandedGroups(prev => new Set([...prev, activeCategory.title]));
+    }
+  }, [currentPath]);
 
   const toggleGroup = (groupTitle: string) => {
     const newExpanded = new Set(expandedGroups);
@@ -85,17 +101,31 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-primary/20 text-primary font-medium border-l-2 border-primary" : "hover:bg-muted/50";
+    isActive ? "bg-primary/20 text-primary font-medium border-l-2 border-primary" : "hover:bg-muted/50 active:bg-muted/70";
+
+  const handleToolClick = (toolName: string) => {
+    if (window.innerWidth < 1024) { // Mobile breakpoint
+      setOpen(false);
+      toast({
+        title: "Opening tool",
+        description: `Loading ${toolName}...`,
+      });
+    }
+  };
 
   return (
-    <Sidebar className="border-r border-border bg-card">
-      <SidebarContent className="p-2">
+    <Sidebar className="border-r border-border bg-card touch-manipulation">
+      <SidebarContent className="p-2 overscroll-contain">
         {/* Dashboard Link */}
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <NavLink to="/" className={getNavCls}>
+                <NavLink 
+                  to="/" 
+                  className={getNavCls}
+                  onClick={() => handleToolClick("Dashboard")}
+                >
                   <Home className="h-4 w-4" />
                   <span>Dashboard</span>
                 </NavLink>
@@ -135,7 +165,11 @@ export function AppSidebar() {
                     {category.tools.map((tool) => (
                       <SidebarMenuItem key={tool.title}>
                         <SidebarMenuButton asChild>
-                          <NavLink to={tool.url} className={getNavCls}>
+                          <NavLink 
+                            to={tool.url} 
+                            className={getNavCls}
+                            onClick={() => handleToolClick(tool.title)}
+                          >
                             <tool.icon className="h-4 w-4" />
                             <span>{tool.title}</span>
                           </NavLink>

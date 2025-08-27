@@ -27,15 +27,18 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <BrowserRouter>
           <div className="flex min-h-screen w-full">
             <AppSidebar />
-            <div className="flex-1">
-              <header className="h-12 flex items-center border-b border-border bg-card px-4">
-                <SidebarTrigger />
-                <div className="ml-4">
-                  <h1 className="text-lg font-semibold text-primary">VRCyber Guard</h1>
+            <div className="flex-1 flex flex-col">
+              <header className="h-12 flex items-center border-b border-border bg-card px-4 sticky top-0 z-40">
+                <SidebarTrigger className="md:hidden" />
+                <div className="ml-4 flex-1">
+                  <h1 className="text-lg font-semibold text-primary truncate">VRCyber Guard</h1>
+                </div>
+                <div className="hidden md:block">
+                  <SidebarTrigger />
                 </div>
               </header>
               <main className="flex-1">
