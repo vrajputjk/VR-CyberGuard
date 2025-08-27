@@ -26,7 +26,7 @@ interface LookupResult {
   source: 'rainbow_table' | 'history' | 'common_passwords';
   confidence: number;
   algorithm: 'MD5' | 'SHA-256';
-  strength: 'Weak' | 'Medium' | 'Strong' | 'Very Strong';
+  strength: 'Weak' | 'Medium' | 'Strong' | 'Very Strong' | 'Unknown';
 }
 
 export default function Hasher() {
