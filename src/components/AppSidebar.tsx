@@ -104,18 +104,19 @@ export function AppSidebar() {
     isActive ? "bg-primary/20 text-primary font-medium border-l-2 border-primary" : "hover:bg-muted/50 active:bg-muted/70";
 
   const handleToolClick = (toolName: string) => {
-    if (window.innerWidth < 1024) { // Mobile breakpoint
+    // Always close sidebar on mobile when navigating
+    if (window.innerWidth < 1024) { 
       setOpen(false);
       toast({
-        title: "Opening tool",
-        description: `Loading ${toolName}...`,
+        title: `🚀 ${toolName}`,
+        description: "Tool loaded successfully",
       });
     }
   };
 
   return (
     <Sidebar className="border-r border-border bg-card touch-manipulation">
-      <SidebarContent className="p-2 overscroll-contain">
+      <SidebarContent className="p-2 overscroll-contain overflow-y-auto max-h-screen">
         {/* Dashboard Link */}
         <SidebarGroup>
           <SidebarMenu>
