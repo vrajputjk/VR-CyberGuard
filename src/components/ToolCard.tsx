@@ -38,15 +38,15 @@ export const ToolCard = ({
   riskLevel = 'low'
 }: ToolCardProps) => {
   return (
-    <Card className="group bg-gradient-card border-border hover:border-primary/40 transition-all duration-300 hover:shadow-cyber">
+    <Card className="group bg-gradient-card border-border hover:border-primary/40 transition-all duration-300 hover:shadow-cyber animate-fade-in hover-scale">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-              <Icon className="w-6 h-6 text-primary" />
+            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+              <Icon className="w-6 h-6 text-primary group-hover:scale-110 transition-transform duration-300" />
             </div>
             <div>
-              <CardTitle className="text-lg group-hover:text-primary transition-colors">
+              <CardTitle className="text-lg group-hover:text-primary transition-colors duration-300">
                 {title}
               </CardTitle>
               <div className="flex items-center gap-2 mt-1">
@@ -73,7 +73,7 @@ export const ToolCard = ({
           {description}
         </CardDescription>
         <Link to={href}>
-          <Button variant="cyber" className="w-full group-hover:shadow-glow-primary">
+          <Button variant="cyber" className="w-full group-hover:shadow-glow-primary transition-all duration-300">
             Launch Tool
           </Button>
         </Link>

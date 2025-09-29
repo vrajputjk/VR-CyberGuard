@@ -1,0 +1,60 @@
+/* Add stagger animation for grid items */
+.stagger-animation > * {
+  animation-delay: calc(var(--stagger-delay, 0) * 0.1s);
+}
+
+.stagger-animation > *:nth-child(1) { --stagger-delay: 1; }
+.stagger-animation > *:nth-child(2) { --stagger-delay: 2; }
+.stagger-animation > *:nth-child(3) { --stagger-delay: 3; }
+.stagger-animation > *:nth-child(4) { --stagger-delay: 4; }
+.stagger-animation > *:nth-child(5) { --stagger-delay: 5; }
+.stagger-animation > *:nth-child(6) { --stagger-delay: 6; }
+.stagger-animation > *:nth-child(7) { --stagger-delay: 7; }
+.stagger-animation > *:nth-child(8) { --stagger-delay: 8; }
+.stagger-animation > *:nth-child(9) { --stagger-delay: 9; }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Enhanced animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Improved scrollbars */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}

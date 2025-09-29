@@ -445,7 +445,7 @@ export default function EmailSecurity() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 animate-fade-in">
           {/* Input Section */}
           <div className="space-y-6">
             <Tabs defaultValue="email" className="w-full">

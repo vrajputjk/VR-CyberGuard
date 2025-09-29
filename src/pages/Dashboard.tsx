@@ -122,7 +122,7 @@ export default function Dashboard() {
         </div>
 
         {/* Tool Categories - Mobile Optimized Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 px-2 md:px-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 px-2 md:px-0 stagger-animation">
           {/* Information Gathering */}
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-primary border-b border-primary/20 pb-2 flex items-center gap-2">

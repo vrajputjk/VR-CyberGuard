@@ -73,32 +73,32 @@ export const IPDisplay = () => {
   }
 
   return (
-    <Card className="bg-gradient-card border-primary/20 hover:border-primary/40 transition-all duration-300">
+    <Card className="bg-gradient-card border-primary/20 hover:border-primary/40 transition-all duration-300 animate-fade-in">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center gap-3">
-            <Globe className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-3 group">
+            <Globe className="w-5 h-5 text-primary group-hover:scale-110 transition-transform duration-300" />
             <div>
               <p className="text-sm text-muted-foreground">Your IP</p>
-              <p className="font-mono text-primary">{ipInfo?.ip}</p>
+              <p className="font-mono text-primary transition-colors duration-300">{ipInfo?.ip}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <MapPin className="w-5 h-5 text-accent" />
+          <div className="flex items-center gap-3 group">
+            <MapPin className="w-5 h-5 text-accent group-hover:scale-110 transition-transform duration-300" />
             <div>
               <p className="text-sm text-muted-foreground">Location</p>
-              <p className="text-sm">
+              <p className="text-sm transition-colors duration-300">
                 {ipInfo?.city ? `${ipInfo.city}, ${ipInfo.country}` : 'Unknown'}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-accent" />
+          <div className="flex items-center gap-3 group">
+            <Clock className="w-5 h-5 text-accent group-hover:scale-110 transition-transform duration-300" />
             <div>
               <p className="text-sm text-muted-foreground">Current Time</p>
-              <p className="font-mono text-sm">
+              <p className="font-mono text-sm transition-colors duration-300">
                 {currentTime.toLocaleString()}
               </p>
             </div>
