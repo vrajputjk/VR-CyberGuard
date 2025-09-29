@@ -341,7 +341,7 @@ export default function DNSLookup() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Input Section */}
           <div className="space-y-6">
             <Tabs defaultValue="dns" className="w-full">

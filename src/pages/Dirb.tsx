@@ -193,7 +193,7 @@ export default function Dirb() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Input Section */}
           <div className="space-y-6">
             <Card className="bg-gradient-card border-primary/20">

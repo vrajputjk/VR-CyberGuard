@@ -108,15 +108,16 @@ export function AppSidebar() {
     if (window.innerWidth < 1024) { 
       setOpen(false);
       toast({
-        title: `🚀 ${toolName}`,
+        title: `🔧 ${toolName}`,
         description: "Tool loaded successfully",
+        duration: 2000,
       });
     }
   };
 
   return (
-    <Sidebar className="border-r border-border bg-card touch-manipulation">
-      <SidebarContent className="p-2 overscroll-contain overflow-y-auto max-h-screen">
+    <Sidebar className="border-r border-border bg-card touch-manipulation select-none">
+      <SidebarContent className="p-2 overscroll-contain overflow-y-auto max-h-screen scrollbar-thin">
         {/* Dashboard Link */}
         <SidebarGroup>
           <SidebarMenu>

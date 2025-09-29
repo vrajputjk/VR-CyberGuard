@@ -9,7 +9,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-glow-primary",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-glow-primary active:scale-95 touch-manipulation",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -18,17 +18,17 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        cyber: "bg-gradient-cyber border border-primary/20 text-primary hover:border-primary/40 hover:shadow-glow-primary transition-all duration-300",
-        scan: "bg-accent/90 text-accent-foreground hover:bg-accent hover:shadow-glow-accent border border-accent/20 transition-all duration-300",
+        cyber: "bg-gradient-cyber border border-primary/20 text-primary hover:border-primary/40 hover:shadow-glow-primary transition-all duration-300 active:scale-95 touch-manipulation",
+        scan: "bg-accent/90 text-accent-foreground hover:bg-accent hover:shadow-glow-accent border border-accent/20 transition-all duration-300 active:scale-95 touch-manipulation",
         threat: "bg-destructive/20 border border-destructive/30 text-destructive hover:bg-destructive/30 hover:border-destructive/50 transition-all duration-300",
         safe: "bg-primary/20 border border-primary/30 text-primary hover:bg-primary/30 hover:border-primary/50 transition-all duration-300",
         precision: "bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 text-primary hover:from-primary/30 hover:to-accent/30 hover:shadow-glow-primary transition-all duration-300",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        default: "h-10 px-4 py-2 min-h-[44px]",
+        sm: "h-9 rounded-md px-3 min-h-[36px]",
+        lg: "h-11 rounded-md px-8 min-h-[44px]",
+        icon: "h-10 w-10 min-h-[44px] min-w-[44px]",
       },
     },
     defaultVariants: {

@@ -111,8 +111,17 @@ export default function Hasher() {
     '5d41402abc4b2a76b9719d911017c592': { plaintext: 'hello', algorithm: 'MD5' },
     '098f6bcd4621d373cade4e832627b4f6': { plaintext: 'test', algorithm: 'MD5' },
     'e10adc3949ba59abbe56e057f20f883e': { plaintext: '123456', algorithm: 'MD5' },
+    '21232f297a57a5a743894a0e4a801fc3': { plaintext: 'admin', algorithm: 'MD5' },
+    'b59c67bf196a4758191e42f76670ceba': { plaintext: 'password123', algorithm: 'MD5' },
+    '827ccb0eea8a706c4c34a16891f84e7b': { plaintext: 'qwerty', algorithm: 'MD5' },
+    '482c811da5d5b4bc6d497ffa98491e38': { plaintext: 'password123', algorithm: 'MD5' },
+    'fcea920f7412b5da7be0cf42b8c93759': { plaintext: 'hello', algorithm: 'MD5' },
     '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8': { plaintext: 'password', algorithm: 'SHA-256' },
-    'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f': { plaintext: 'secret', algorithm: 'SHA-256' }
+    'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f': { plaintext: 'secret', algorithm: 'SHA-256' },
+    '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918': { plaintext: 'admin', algorithm: 'SHA-256' },
+    '65e84be33532fb784c48129675f9eff3a682b27168c0ea744b2cf58ee02337c5': { plaintext: 'qwerty', algorithm: 'SHA-256' },
+    '2cf24dba4f21d4288230f82de90c40bb4a1b58b27b59e5ef1e26fed8a62f54e2': { plaintext: 'hello', algorithm: 'SHA-256' },
+    'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855': { plaintext: '', algorithm: 'SHA-256' }
   };
 
   const decodeHash = async () => {
@@ -184,7 +193,7 @@ export default function Hasher() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           <div className="space-y-6">
             <Tabs defaultValue="generate" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
