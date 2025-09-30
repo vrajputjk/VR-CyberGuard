@@ -17,6 +17,24 @@ interface PhishingResult {
   explanation: string;
 }
 
+// Helper function for edit distance calculation
+const levenshteinDistance = (str1: string, str2: string): number => {
+  const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+  for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+  for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+  for (let j = 1; j <= str2.length; j++) {
+    for (let i = 1; i <= str1.length; i++) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1,
+        matrix[j - 1][i] + 1,
+        matrix[j - 1][i - 1] + indicator
+      );
+    }
+  }
+  return matrix[str2.length][str1.length];
+};
+
 export default function PhishingDetector() {
   const [url, setUrl] = useState('');
   const [textContent, setTextContent] = useState('');
@@ -40,103 +58,184 @@ export default function PhishingDetector() {
       const indicators: string[] = [];
       let score = 0;
       
-      // Enhanced URL analysis patterns
+      // Enhanced URL analysis patterns with comprehensive detection
       const urlLower = url.toLowerCase();
+      let urlObj: URL;
       
-      // URL shorteners (higher risk)
-      const shorteners = ['bit.ly', 'tinyurl', 't.co', 'goo.gl', 'ow.ly', 'short.link', 'tiny.cc', 'is.gd', 'buff.ly', 'rebrand.ly', 'cutt.ly'];
-      if (shorteners.some(s => urlLower.includes(s))) {
-        indicators.push('URL shortener detected - hides true destination');
-        score += 35;
+      try {
+        urlObj = new URL(url.startsWith('http') ? url : 'https://' + url);
+      } catch (e) {
+        indicators.push('Invalid URL format or malformed structure');
+        score += 70;
+        setResult({
+          status: 'phishing',
+          score: 70,
+          indicators,
+          explanation: 'Malformed URL detected. This is often a sign of phishing attempts.'
+        });
+        return;
       }
       
-      // Known phishing patterns and typosquatting
-      const legitimateDomains = ['google', 'facebook', 'microsoft', 'apple', 'amazon', 'paypal', 'netflix', 'spotify', 'dropbox', 'github'];
-      const suspiciousVariations = ['g00gle', 'facebbok', 'micr0soft', 'app1e', 'amaz0n', 'payp4l', 'netf1ix', 'sp0tify', 'dr0pbox', 'githvb'];
+      const domain = urlObj.hostname.toLowerCase();
+      const path = urlObj.pathname.toLowerCase();
       
-      if (suspiciousVariations.some(variation => urlLower.includes(variation))) {
-        indicators.push('Possible typosquatting - mimics legitimate domain');
-        score += 60;
+      // Advanced URL shortener detection
+      const shorteners = [
+        'bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'ow.ly', 'short.link', 
+        'tiny.cc', 'is.gd', 'buff.ly', 'rebrand.ly', 'cutt.ly', 'rb.gy',
+        'adf.ly', 'bc.vc', 'lnkd.in', 'amzn.to', 'youtu.be', 'tco'
+      ];
+      if (shorteners.some(s => domain.includes(s))) {
+        indicators.push('URL shortener detected - destination hidden, commonly used in phishing');
+        score += 40;
       }
       
-      // Check for brand impersonation with common misspellings
-      legitimateDomains.forEach(domain => {
-        if (urlLower.includes(domain) && !urlLower.includes(`${domain}.com`) && !urlLower.includes(`${domain}.org`)) {
-          indicators.push(`Possible brand impersonation of ${domain}`);
+      // Enhanced typosquatting detection with Levenshtein distance
+      const legitimateDomains = {
+        'google.com': ['gooogle.com', 'googel.com', 'g00gle.com', 'googlle.com'],
+        'facebook.com': ['facebbok.com', 'fecebook.com', 'facbook.com', 'facebook.co'],
+        'microsoft.com': ['mircosoft.com', 'microsft.com', 'micr0soft.com'],
+        'apple.com': ['aple.com', 'appple.com', 'app1e.com', 'aplle.com'],
+        'amazon.com': ['amazom.com', 'amaz0n.com', 'amazone.com', 'amazon.co'],
+        'paypal.com': ['payp4l.com', 'paypaI.com', 'paypal.co', 'paypaI.com'],
+        'netflix.com': ['netf1ix.com', 'netflx.com', 'netfIix.com', 'netflix.co'],
+        'spotify.com': ['sp0tify.com', 'spotfy.com', 'spotlfy.com'],
+        'github.com': ['githvb.com', 'gitub.com', 'github.co'],
+        'linkedin.com': ['linkedin.co', 'linkedln.com', 'lnkedin.com']
+      };
+      
+      Object.entries(legitimateDomains).forEach(([legitimate, variants]) => {
+        variants.forEach(variant => {
+          if (domain.includes(variant.replace('.com', '').replace('.co', ''))) {
+            indicators.push(`Typosquatting detected: mimics ${legitimate}`);
+            score += 65;
+          }
+        });
+        
+        // Check Levenshtein distance for similar domains
+        const legitDomain = legitimate.replace('.com', '');
+        const currentDomain = domain.replace(/\.(com|org|net|co|io)$/, '');
+        if (levenshteinDistance(currentDomain, legitDomain) <= 2 && currentDomain !== legitDomain) {
+          indicators.push(`Possible typosquatting of ${legitimate} (edit distance: ${levenshteinDistance(currentDomain, legitDomain)})`);
+          score += 50;
+        }
+      });
+      
+      // Advanced homograph attack detection
+      const homographPatterns = [
+        { name: 'Cyrillic a', pattern: /а/g, replacement: 'a' },
+        { name: 'Cyrillic e', pattern: /е/g, replacement: 'e' },
+        { name: 'Greek omicron', pattern: /ο/g, replacement: 'o' },
+        { name: 'Cyrillic p', pattern: /р/g, replacement: 'p' },
+        { name: 'Cyrillic c', pattern: /с/g, replacement: 'c' },
+        { name: 'Cyrillic o', pattern: /о/g, replacement: 'o' },
+        { name: 'Hebrew characters', pattern: /[א-ת]/g, replacement: '' },
+        { name: 'Arabic characters', pattern: /[ا-ي]/g, replacement: '' }
+      ];
+      
+      homographPatterns.forEach(pattern => {
+        if (pattern.pattern.test(domain)) {
+          indicators.push(`Homograph attack detected: ${pattern.name} used to mimic Latin characters`);
+          score += 60;
+        }
+      });
+      
+      // Enhanced suspicious domain pattern detection
+      const suspiciousPatterns = [
+        { pattern: /secure-[a-z]+/, desc: 'Fake security prefix' },
+        { pattern: /verify-[a-z]+/, desc: 'Verification spoofing' },
+        { pattern: /update-[a-z]+/, desc: 'Update urgency tactics' },
+        { pattern: /account-[a-z]+/, desc: 'Account impersonation' },
+        { pattern: /support-[a-z]+/, desc: 'Support service spoofing' },
+        { pattern: /login-[a-z]+/, desc: 'Login page impersonation' },
+        { pattern: /[a-z]+-security/, desc: 'Security service spoofing' }
+      ];
+      
+      suspiciousPatterns.forEach(({ pattern, desc }) => {
+        if (pattern.test(domain)) {
+          indicators.push(`Suspicious domain pattern: ${desc}`);
           score += 45;
         }
       });
       
-      // Suspicious keywords
-      const suspiciousKeywords = ['phishing', 'malware', 'virus', 'hack', 'crack', 'trojan', 'ransomware'];
-      if (suspiciousKeywords.some(keyword => urlLower.includes(keyword))) {
-        indicators.push('Suspicious keywords in URL detected');
+      // Protocol security check
+      if (urlObj.protocol !== 'https:') {
+        indicators.push('Insecure HTTP protocol - data transmitted in plain text');
+        score += 30;
+      }
+      
+      // IP address usage instead of domain
+      const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+      if (ipPattern.test(domain)) {
+        indicators.push('Direct IP address used instead of domain name');
         score += 50;
       }
       
-      // Security indicators
-      if (!url.startsWith('https://')) {
-        indicators.push('No HTTPS encryption - data not secure');
+      // Suspicious top-level domains
+      const suspiciousTlds = ['.tk', '.ml', '.cf', '.ga', '.pw', '.top', '.click', '.download', '.zip'];
+      const tld = domain.substring(domain.lastIndexOf('.'));
+      if (suspiciousTlds.includes(tld)) {
+        indicators.push(`Suspicious TLD "${tld}" commonly used for malicious purposes`);
+        score += 35;
+      }
+      
+      // Excessive subdomain analysis
+      const subdomains = domain.split('.');
+      if (subdomains.length > 4) {
+        indicators.push(`Excessive subdomains (${subdomains.length}) - often used to confuse users`);
         score += 25;
       }
       
-      // Homograph/IDN attacks
-      if (/[а-я]/.test(url) || /[α-ω]/.test(url) || /[א-ת]/.test(url)) {
-        indicators.push('Possible homograph attack using non-Latin characters');
-        score += 45;
+      // Domain length analysis
+      if (domain.length > 40) {
+        indicators.push(`Unusually long domain name (${domain.length} characters)`);
+        score += 20;
       }
       
-      // Suspicious domain patterns
-      const suspiciousPrefixes = ['secure-', 'verify-', 'update-', 'confirm-', 'account-', 'support-', 'help-'];
-      if (suspiciousPrefixes.some(prefix => urlLower.includes(prefix))) {
-        indicators.push('Suspicious domain pattern mimicking legitimate services');
-        score += 40;
+      // Suspicious path analysis
+      const suspiciousPaths = [
+        '/login', '/signin', '/verify', '/update', '/security', '/confirm',
+        '/account-locked', '/suspended', '/billing-problem', '/expires-today',
+        '/click-here', '/urgent', '/immediate-action', '/download.php'
+      ];
+      
+      suspiciousPaths.forEach(suspiciousPath => {
+        if (path.includes(suspiciousPath)) {
+          indicators.push(`Suspicious URL path: "${suspiciousPath}" commonly used in phishing`);
+          score += 15;
+        }
+      });
+      
+      // Port analysis
+      const port = urlObj.port;
+      const suspiciousPorts = ['8080', '8443', '8000', '3000', '4444', '9999'];
+      if (port && suspiciousPorts.includes(port)) {
+        indicators.push(`Suspicious port number: ${port}`);
+        score += 20;
       }
-
-      // IP addresses instead of domains
-      if (/\d+\.\d+\.\d+\.\d+/.test(url)) {
-        indicators.push('IP address used instead of domain name');
-        score += 45;
-      }
-
-      // Excessive subdomains
-      const subdomainCount = (url.match(/\./g) || []).length;
-      if (subdomainCount > 4) {
-        indicators.push('Excessive subdomains detected');
-        score += 25;
-      }
-
-      // Suspicious TLDs
-      const suspiciousTlds = ['.tk', '.ml', '.cf', '.ga', '.pw', '.top'];
-      if (suspiciousTlds.some(tld => urlLower.includes(tld))) {
-        indicators.push('Suspicious top-level domain');
+      
+      // URL encoding obfuscation
+      if (url.includes('%') && (url.match(/%/g) || []).length > 5) {
+        indicators.push('Excessive URL encoding detected - possible obfuscation');
         score += 30;
       }
 
-      // Long domains
-      try {
-        const domain = new URL(url).hostname;
-        if (domain.length > 30) {
-          indicators.push('Unusually long domain name');
-          score += 20;
-        }
-      } catch (e) {
-        indicators.push('Invalid URL format');
-        score += 60;
-      }
-
+      
       let status: 'safe' | 'suspicious' | 'phishing';
       let explanation: string;
 
-      if (score >= 70) {
+      if (score >= 80) {
         status = 'phishing';
-        explanation = 'High probability of phishing. Multiple red flags detected. Do not visit this URL.';
-      } else if (score >= 30) {
+        explanation = 'CRITICAL: High probability of phishing attack. Multiple advanced threat indicators detected. DO NOT visit this URL.';
+      } else if (score >= 50) {
+        status = 'phishing';
+        explanation = 'HIGH RISK: Strong indicators of phishing. This URL exhibits multiple suspicious characteristics.';
+      } else if (score >= 25) {
         status = 'suspicious';
-        explanation = 'Potentially suspicious. Exercise caution and verify the source before proceeding.';
+        explanation = 'CAUTION: Potentially suspicious URL. Exercise extreme caution and verify the source before proceeding.';
       } else {
         status = 'safe';
-        explanation = 'No obvious phishing indicators detected. However, always remain vigilant.';
+        explanation = 'LOW RISK: No obvious phishing indicators detected. However, always remain vigilant online.';
       }
 
       setResult({

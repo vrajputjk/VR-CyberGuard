@@ -84,8 +84,10 @@ export default function NetworkScanner() {
 
     setLoading(true);
     try {
-      // Simulate scan delay
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Enhanced realistic scanning delay based on scan type
+      const baseDelay = scanType === 'basic' ? 2000 : 4000;
+      const randomDelay = Math.random() * 2000;
+      await new Promise(resolve => setTimeout(resolve, baseDelay + randomDelay));
 
       const portsToScan = scanType === 'basic' ? commonPorts : topPorts;
       const scanResults: ScanResult[] = [];

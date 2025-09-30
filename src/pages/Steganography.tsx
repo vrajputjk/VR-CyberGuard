@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Image, ArrowLeft, Upload, Download, Key, Eye, EyeOff, Copy, FileImage, Shield, Zap, Save } from 'lucide-react';
+import { Image, ArrowLeft, Upload, Download, Key, Eye, EyeOff, Copy, FileImage, Shield, Zap, Save, Lock, Unlock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 
 export default function Steganography() {
   const [message, setMessage] = useState('');
