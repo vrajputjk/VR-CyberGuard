@@ -45,19 +45,28 @@ export default function Steganography() {
           processedMessage = btoa(passphrase + ":" + message);
         }
         
+        // Add length header for better extraction (2 bytes for length)
+        const messageWithHeader = String.fromCharCode(processedMessage.length & 0xFF) + 
+                                  String.fromCharCode((processedMessage.length >> 8) & 0xFF) + 
+                                  processedMessage;
+        
         // Convert message to binary
-        const messageBinary = Array.from(new TextEncoder().encode(processedMessage))
+        const messageBinary = Array.from(new TextEncoder().encode(messageWithHeader))
           .map(byte => byte.toString(2).padStart(8, '0')).join('');
         
-        // Add end marker
-        const endMarker = '1111111111111110'; // 16-bit end marker
-        const fullBinary = messageBinary + endMarker;
+        // Calculate capacity
+        const maxBits = Math.floor((img.width * img.height * 3) / 8) * 8;
+        if (messageBinary.length > maxBits) {
+          throw new Error(`Message too large! Max ${Math.floor(maxBits / 8)} bytes, got ${Math.ceil(messageBinary.length / 8)}`);
+        }
         
-        // Hide data in LSB of red channel
+        // Hide data in LSB of RGB channels (not alpha) - improved distribution
         let bitIndex = 0;
-        for (let i = 0; i < data.length && bitIndex < fullBinary.length; i += 4) {
-          if (bitIndex < fullBinary.length) {
-            data[i] = (data[i] & 0xFE) | parseInt(fullBinary[bitIndex]);
+        for (let i = 0; i < data.length && bitIndex < messageBinary.length; i += 4) {
+          // Embed in R, G, B channels (skip A at i+3)
+          for (let j = 0; j < 3 && bitIndex < messageBinary.length; j++) {
+            const bit = parseInt(messageBinary[bitIndex]);
+            data[i + j] = (data[i + j] & 0b11111110) | bit;
             bitIndex++;
           }
         }
@@ -70,10 +79,10 @@ export default function Steganography() {
           dimensions: `${img.width}x${img.height}`,
           messageLength: message.length,
           encryptedLength: processedMessage.length,
-          bitsUsed: fullBinary.length,
-          pixelsModified: fullBinary.length,
+          bitsUsed: messageBinary.length,
+          pixelsModified: Math.ceil(messageBinary.length / 3),
           capacity: Math.floor((img.width * img.height * 3) / 8),
-          utilizationRate: ((fullBinary.length / (img.width * img.height * 3)) * 100).toFixed(4)
+          utilizationRate: ((messageBinary.length / (img.width * img.height * 3)) * 100).toFixed(4)
         };
         
         resolve({ canvas, analysis });
@@ -174,27 +183,43 @@ export default function Steganography() {
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
         
-        // Extract bits from LSB of red channel
+        // Extract bits from LSB of RGB channels (not alpha)
         let binaryString = '';
         for (let i = 0; i < data.length; i += 4) {
-          binaryString += (data[i] & 1).toString();
+          // Extract from R, G, B channels
+          for (let j = 0; j < 3; j++) {
+            binaryString += (data[i + j] & 1).toString();
+          }
         }
         
-        // Look for end marker
-        const endMarker = '1111111111111110';
-        const endIndex = binaryString.indexOf(endMarker);
-        
-        if (endIndex === -1) {
-          resolve(null); // No hidden data found
+        // Read length header (first 16 bits = 2 bytes)
+        if (binaryString.length < 16) {
+          resolve(null);
           return;
         }
         
-        const messageBinary = binaryString.substring(0, endIndex);
+        const lengthLow = parseInt(binaryString.substring(0, 8), 2);
+        const lengthHigh = parseInt(binaryString.substring(8, 16), 2);
+        const messageLength = lengthLow + (lengthHigh << 8);
         
-        // Convert binary to text
+        // Validate message length
+        if (messageLength <= 0 || messageLength > 10000) {
+          resolve(null);
+          return;
+        }
+        
+        // Extract message bits (skip header)
+        const messageBits = binaryString.substring(16, 16 + (messageLength * 8));
+        
+        if (messageBits.length < messageLength * 8) {
+          resolve(null);
+          return;
+        }
+        
+        // Convert binary to bytes
         const bytes = [];
-        for (let i = 0; i < messageBinary.length; i += 8) {
-          const byte = messageBinary.substr(i, 8);
+        for (let i = 0; i < messageBits.length; i += 8) {
+          const byte = messageBits.substring(i, i + 8);
           if (byte.length === 8) {
             bytes.push(parseInt(byte, 2));
           }

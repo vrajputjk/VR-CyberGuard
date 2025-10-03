@@ -122,55 +122,56 @@ export default function NetworkScanner() {
             case 23: service = 'Telnet'; version = 'BSD-derived telnetd'; break;
             case 25: 
               service = 'SMTP'; 
-              version = Math.random() > 0.5 ? 'Postfix 3.4.13' : 'Exim 4.94.2'; 
+              version = Math.random() > 0.5 ? 'Postfix smtpd 3.6.4' : 'Exim smtpd 4.96'; 
               banner = getServiceBanner(port, service);
               break;
-            case 53: service = 'DNS'; version = Math.random() > 0.5 ? 'BIND 9.16.1-Ubuntu' : 'dnsmasq 2.80'; break;
+            case 53: service = 'DNS'; version = Math.random() > 0.5 ? 'ISC BIND 9.18.1' : 'dnsmasq-pi-hole 2.86'; break;
             case 80: 
               service = 'HTTP'; 
-              version = Math.random() > 0.5 ? 'Apache/2.4.41 (Ubuntu)' : 'nginx/1.18.0'; 
+              version = Math.random() > 0.5 ? 'Apache httpd 2.4.52 (Ubuntu)' : 'nginx 1.22.0'; 
               banner = getServiceBanner(port, service);
               break;
-            case 110: service = 'POP3'; version = 'Dovecot 2.3.13'; break;
-            case 135: service = 'RPC'; version = 'Microsoft Windows RPC'; break;
-            case 139: service = 'NetBIOS-SSN'; version = 'Samba smbd 4.13.17'; break;
-            case 143: service = 'IMAP'; version = 'Dovecot imapd 2.3.13'; break;
+            case 110: service = 'POP3'; version = 'Dovecot pop3d 2.3.19.1'; break;
+            case 135: service = 'MSRPC'; version = 'Microsoft Windows RPC'; break;
+            case 139: service = 'NetBIOS-SSN'; version = 'Microsoft Windows netbios-ssn'; break;
+            case 143: service = 'IMAP'; version = 'Dovecot imapd 2.3.19.1'; break;
             case 443: 
               service = 'HTTPS'; 
-              version = Math.random() > 0.5 ? 'Apache/2.4.41 (Ubuntu)' : 'nginx/1.18.0 (Ubuntu)'; 
+              version = Math.random() > 0.5 ? 'Apache httpd 2.4.52' : 'nginx 1.22.0 (SSL)'; 
               banner = getServiceBanner(port, service);
               break;
-            case 445: service = 'SMB'; version = 'Samba smbd 4.13.17-Ubuntu'; break;
-            case 993: service = 'IMAPS'; version = 'Dovecot imapd 2.3.13'; break;
-            case 995: service = 'POP3S'; version = 'Dovecot pop3d 2.3.13'; break;
+            case 445: service = 'Microsoft-DS'; version = 'Samba smbd 4.15.13-Ubuntu'; break;
+            case 587: service = 'SMTP'; version = 'Postfix smtpd (submission)'; break;
+            case 993: service = 'IMAPS'; version = 'Dovecot imapd (SSL)'; break;
+            case 995: service = 'POP3S'; version = 'Dovecot pop3d (SSL)'; break;
             case 1433: 
-              service = 'MSSQL'; 
-              version = 'Microsoft SQL Server 2019 15.00.2000'; 
+              service = 'MS-SQL-S'; 
+              version = 'Microsoft SQL Server 2019 15.0.2000.5'; 
               banner = getServiceBanner(port, service);
               break;
             case 1723: service = 'PPTP'; version = 'Microsoft PPTP VPN'; break;
             case 3306: 
               service = 'MySQL'; 
-              version = Math.random() > 0.5 ? 'MySQL 8.0.28-0ubuntu0.20.04.3' : 'MariaDB 10.6.7'; 
+              version = Math.random() > 0.5 ? 'MySQL 8.0.32-0ubuntu0.22.04.2' : 'MariaDB 10.11.2'; 
               banner = getServiceBanner(port, service);
               break;
             case 3389: 
-              service = 'RDP'; 
+              service = 'MS-WBT-Server'; 
               version = 'Microsoft Terminal Services'; 
               banner = getServiceBanner(port, service);
               break;
             case 5432: 
               service = 'PostgreSQL'; 
-              version = 'PostgreSQL 13.7 on x86_64-pc-linux-gnu'; 
+              version = 'PostgreSQL DB 14.7 on x86_64-pc-linux-gnu'; 
               banner = getServiceBanner(port, service);
               break;
-            case 5900: service = 'VNC'; version = 'VNC protocol version 3.8'; break;
-            case 6379: service = 'Redis'; version = 'Redis server 6.2.6'; break;
-            case 8080: service = 'HTTP-Proxy'; version = 'Apache Tomcat 9.0.62'; break;
-            case 8443: service = 'HTTPS-Alt'; version = 'Apache Tomcat 9.0.62'; break;
-            case 9200: service = 'Elasticsearch'; version = 'Elasticsearch 7.17.3'; break;
-            case 11211: service = 'Memcached'; version = 'memcached 1.6.15'; break;
-            case 27017: service = 'MongoDB'; version = 'MongoDB 5.0.8'; break;
+            case 5900: service = 'VNC'; version = 'VNC protocol 3.8 (RealVNC 7.0.1)'; break;
+            case 6379: service = 'Redis'; version = 'Redis key-value store 7.0.9'; break;
+            case 8080: service = 'HTTP-Proxy'; version = 'Apache Tomcat/10.1.7'; break;
+            case 8443: service = 'HTTPS-Alt'; version = 'nginx 1.23.3 (SSL)'; break;
+            case 9200: service = 'HTTP'; version = 'Elasticsearch REST API 8.6.2'; break;
+            case 11211: service = 'Memcached'; version = 'memcached 1.6.18'; break;
+            case 27017: service = 'MongoDB'; version = 'MongoDB 6.0.4 wire protocol'; break;
             default: service = 'Unknown'; version = 'Version detection failed';
           }
         } else if (random > 0.55) {

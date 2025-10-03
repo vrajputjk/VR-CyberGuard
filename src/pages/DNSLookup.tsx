@@ -58,11 +58,14 @@ export default function DNSLookup() {
       return;
     }
 
-    const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!domainRegex.test(domain)) {
+    // Enhanced domain validation
+    const domainRegex = /^(?!:\/\/)([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+    const trimmedDomain = domain.trim().toLowerCase();
+    
+    if (!domainRegex.test(trimmedDomain)) {
       toast({
-        title: "Error",
-        description: "Please enter a valid domain name",
+        title: "Invalid Domain",
+        description: "Please enter a valid domain name (e.g., example.com)",
         variant: "destructive",
       });
       return;
